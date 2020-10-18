@@ -1,0 +1,30 @@
+.login-form {
+  display: flex;
+  justify-content: center;
+  max-width: 460px;
+  margin: 90px auto 0 auto;
+  flex-direction: column;
+  form {
+    width: 100%;
+    .btn-login {
+      margin-bottom: 20px;
+    }
+  }
+  .quick-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    .nav-link {
+      font-size: $fontSizeLower;
+      color: $buttonColor;
+      letter-spacing: .05rem;
+      transition: .3s;
+
+      &:hover {
+        color: $textColorActive;
+      }
+    }
+  }
+
+}

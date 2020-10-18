@@ -57,4 +57,15 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims() {
         return ['pera','mika'];
     }
+
+
+  /**
+   * Update model relationship
+   *
+   * @return \Illuminate\Database\Eloquent\Relations\HasMany
+   */
+  public function updates()
+  {
+    return $this->hasMany(Update::class);
+  }
 }

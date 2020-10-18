@@ -1,0 +1,15 @@
+.button-wrapper {
+  button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 18px;
+    background-color: $buttonBg;
+    color: $buttonColor;
+    font-size: $fontSizeBigger;
+    &:hover {
+      color: $textColor;
+      background-color: $buttonBgHover;
+      cursor: pointer;
+    }
+  }
+}

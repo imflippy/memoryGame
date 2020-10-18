@@ -17,15 +17,29 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group([
-    'middleware' => 'api',
-    'prefix' => 'auth'
-
+  'middleware' => 'api',
+  'prefix' => 'auth'
 ], function ($router) {
-    Route::post('login', 'AuthController@login');
-    Route::post('register', 'AuthController@register');
-    Route::post('logout', 'AuthController@logout');
-    Route::post('refresh', 'AuthController@refresh');
-    Route::get('user-profile', 'AuthController@userProfile');
+  Route::post('login', 'AuthController@login');
+  Route::post('register', 'AuthController@register');
+  Route::post('logout', 'AuthController@logout');
+  Route::post('refresh', 'AuthController@refresh');
+  Route::get('user-profile', 'AuthController@userProfile');
+  Route::get('/online', 'AuthController@list');
 });
 
+
+Route::group([
+  'middleware' => 'api',
+], function ($router) {
+
+});
+
+
 Route::post('push', 'SinglePageController@push');
+
+//Route::post('online', 'UserController@online');
+
+//Route::get('/online', 'UpdateController@list');
+//Route::post('/online', 'UpdateController@create');
+

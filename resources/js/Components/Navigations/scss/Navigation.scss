@@ -1,0 +1,20 @@
+#nav {
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  .nav-link {
+    font-size: $fontSizeLower;
+    color: $textColor;
+    text-transform: uppercase;
+    letter-spacing: .05rem;
+    padding: 10px;
+    transition: .3s;
+
+    &:hover {
+      color: $textColorActive;
+    }
+    &.router-link-exact-active {
+      color: $textColorActive;
+    }
+  }
+}

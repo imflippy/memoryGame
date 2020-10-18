@@ -1,0 +1,48 @@
+@import url('//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+
+.info, .success, .warning, .error {
+  padding: 8px;
+  width: 100%;
+  font-size: $fontSizeMessage;
+  background-color: $errorMessageBg;
+  position: relative;
+  p {
+    padding-left: 16px;
+  }
+  &::before {
+    font-family:FontAwesome;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    position: absolute;
+    left: 8px;
+    top: 9px;
+  }
+}
+.info {
+  background-color: $infoMessageBg;
+  color: $infoMessageColor;
+  &::before {
+    content:"\f05a";
+  }
+}
+.success {
+  background-color: $successMessageBg;
+  color: $successMessageColor;
+  &::before {
+    content:'\f00c';
+  }
+}
+.warning {
+  background-color: $warningMessageBg;
+  color: $warningMessageColor;
+  &::before {
+    content:'\f071';
+  }
+}
+.error {
+  background-color: $errorMessageBg;
+  color: $errorMessageColor;
+  &::before {
+    content:'\f057';
+  }
+}

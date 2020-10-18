@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\LogoutUser;
+use App\Events\OnlineUsers;
+use App\Update;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,7 +21,7 @@ class AuthController extends Controller
      */
     public function __construct() {
         //$this->middleware('auth:api', ['except' => ['login', 'register']]);
-        $this->middleware('jwt.verify:api:jwt.refresh', ['except' => ['login', 'register']]);
+        $this->middleware('jwt.verify:api:jwt.refresh', ['except' => ['login', 'register', 'logout']]);
     }
 
     /**
@@ -29,7 +32,7 @@ class AuthController extends Controller
     public function login(Request $request){
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|string|min:6',
+            'password' => ['required', 'string', 'min:6', 'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\X])(?=.*[!$#%]).*$/']
         ]);
 
         if ($validator->fails()) {
@@ -39,6 +42,12 @@ class AuthController extends Controller
         if (! $token = auth()->attempt($validator->validated())) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+        $update = auth()->user()->updates()->save(new Update())->load('user');
+
+        broadcast(new OnlineUsers($update))->toOthers();
+
+//        return response()->json($update);
+
         return $this->createNewToken($token);
     }
 
@@ -51,7 +60,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:users',
-            'password' => 'required|string|confirmed|min:6',
+            'password' => ['required', 'string', 'min:6', 'regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\X])(?=.*[!$#%]).*$/']
         ]);
 
         if($validator->fails()){
@@ -75,10 +84,13 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout() {
-        auth()->logout();
+    public function logout(Request $request) {
+      $userId = $request->input('userId');
+      Update::where('user_id',$userId)->delete();
 
-        return response()->json(['message' => 'User successfully signed out']);
+      broadcast(new LogoutUser($userId))->toOthers();
+
+      return response()->json(['message' => 'User successfully signed out']);
     }
 
     /**
@@ -114,4 +126,9 @@ class AuthController extends Controller
             'user' => auth()->user()
         ]);
     }
+
+  public function list()
+  {
+    return response()->json(Update::latest()->with('user')->get());
+  }
 }

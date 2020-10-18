@@ -18,7 +18,7 @@
 
         </div>
         <script src="{{ asset('js/app.js') }}"></script>
-        <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+{{--        <script src="https://js.pusher.com/7.0/pusher.min.js"></script>--}}
         <!-- <script>
             Pusher.logToConsole = true;
 
@@ -27,7 +27,7 @@
             });
 
             var channel = pusher.subscribe('my-channel');
-            channel.bind('my-event', function(data) { 
+            channel.bind('my-event', function(data) {
             messages.push(JSON.stringify(data));
             });
         </script> -->

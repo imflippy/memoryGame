@@ -1,0 +1,22 @@
+.input-wrapper {
+  height: 88px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  margin-bottom: 20px;
+  .input-field {
+    width: 100%;
+    height: 52px;
+    background: transparent;
+    padding: 12px;
+    border: 2px solid $border;
+    color: $textColor;
+    font-size: $fontSizeBigger;
+    transition: .3s;
+    &:focus {
+      border: 2px solid $borderActive;
+    }
+  }
+}

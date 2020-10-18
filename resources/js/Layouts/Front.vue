@@ -1,18 +1,19 @@
 <template>
-    <div>
-        <Navigation></Navigation>
-        <h1>Front</h1>
-        <slot/>
-    </div>
+  <div>
+    <Header></Header>
+    <slot/>
+    <Footer></Footer>
+  </div>
 
 </template>
-
 <script>
-    import Navigation from "../Components/Navigation";
+    import Header from "../Components/Header/Header";
+    import Footer from "../Components/Footer/Footer";
     export default {
         name: "Front",
         components: {
-            Navigation
+          Header,
+          Footer
         }
     }
 </script>

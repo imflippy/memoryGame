@@ -1,7 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9f2b40a9-0ebe-47af-a19e-070e0374d76c" name="Default Changelist" comment="" />
+    <list default="true" id="9f2b40a9-0ebe-47af-a19e-070e0374d76c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/watcherTasks.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Footer/Footer.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/FormElements/Button.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/FormElements/FormTitle.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/FormElements/InputText.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/FormElements/scss/Button.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/FormElements/scss/FormTitle.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/FormElements/scss/InputText.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Game/Lobby.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Game/scss/Lobby.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Header/Header.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Header/scss/header.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Helpers/Loader.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Helpers/Message.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Helpers/scss/Loader.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Helpers/scss/Message.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Login/Login.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Login/scss/Login.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Navigations/scss/Navigation.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/PageInfo/PageInfo.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/PageInfo/scss/PageInfo.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Register/Register.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Components/Register/scss/Register.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/Store/Modules/loader.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/sass/variables.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/.editorconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/AuthController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/User.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/jwt.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/jwt.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/Components/Navigation.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/Components/Navigations/Navigation.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/Layouts/Front.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/Layouts/Front.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/Router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/Router/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/Store/Modules/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/Store/Modules/auth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/Store/Modules/settings.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/Store/Modules/settings.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/Store/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/Store/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/Views/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/Components/Home/Home.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/Views/Login.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/bootstrap.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/bootstrap.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/variables.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/variables.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/app.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/app.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/channels.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/channels.php" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,6 +85,12 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JsFlowSettings">
+    <service-enabled>true</service-enabled>
+    <exe-path />
+    <other-services-enabled>true</other-services-enabled>
+    <auto-save>true</auto-save>
   </component>
   <component name="PackageJsonUpdateNotifier">
     <dismissed value="$PROJECT_DIR$/package.json" />
@@ -160,16 +215,21 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.selected.configurable" value="MTConfigurable" />
+    <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/resources/js/Store/Modules" />
-      <recent name="$PROJECT_DIR$/resources/js/Views" />
+      <recent name="$PROJECT_DIR$/resources/js/Components/Helpers/scss" />
+      <recent name="$PROJECT_DIR$/resources/js/Components/Login" />
+      <recent name="$PROJECT_DIR$/resources/js/Components/Home" />
+      <recent name="$PROJECT_DIR$/resources/js/Components/Footer" />
+      <recent name="$PROJECT_DIR$/resources/js/Components/Naviations" />
     </key>
   </component>
   <component name="RunManager">
@@ -207,6 +267,18 @@
       <workItem from="1596880528092" duration="1013000" />
       <workItem from="1600518395781" duration="2384000" />
       <workItem from="1600807284448" duration="2554000" />
+      <workItem from="1601121340021" duration="8628000" />
+      <workItem from="1601145697255" duration="14063000" />
+      <workItem from="1601193917647" duration="18078000" />
+      <workItem from="1601234712975" duration="4207000" />
+      <workItem from="1601725254478" duration="1651000" />
+      <workItem from="1601831887937" duration="3904000" />
+      <workItem from="1601923418503" duration="8784000" />
+      <workItem from="1602520849747" duration="4361000" />
+      <workItem from="1602698466131" duration="10679000" />
+      <workItem from="1602779706416" duration="3199000" />
+      <workItem from="1603016810091" duration="6274000" />
+      <workItem from="1603035767544" duration="3163000" />
     </task>
     <servers />
   </component>
@@ -218,23 +290,44 @@
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="440" y="202" key="#Notifications/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1600807316168" />
-    <state x="563" y="336" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1596665170665">
+    <state x="563" y="336" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1601135250150">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="563" y="336" key="#com.intellij.fileTypes.FileTypeChooser/-1250.-1057.1920.1057/0.23.1680.1027/670.-1057.1920.1057@0.23.1680.1027" timestamp="1596665170665" />
+    <state x="563" y="336" key="#com.intellij.fileTypes.FileTypeChooser/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1601135250150" />
+    <state x="528" y="279" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1601234626495">
+      <screen x="0" y="23" width="1680" height="1027" />
+    </state>
+    <state x="528" y="279" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1601234626495" />
+    <state x="578" y="298" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1602781999329">
+      <screen x="0" y="23" width="1680" height="1027" />
+    </state>
+    <state x="578" y="298" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1601833628830" />
+    <state x="578" y="298" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/0.23.1680.1027@0.23.1680.1027" timestamp="1602781999329" />
     <state x="0" y="23" key="FileDocumentManager.FileCacheConflict" timestamp="1596733329675">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="0" y="23" key="FileDocumentManager.FileCacheConflict/-1250.-1057.1920.1057/0.23.1680.1027/670.-1057.1920.1057@0.23.1680.1027" timestamp="1596733329675" />
-    <state x="341" y="175" key="SettingsEditor" timestamp="1600807311756">
+    <state x="341" y="175" key="SettingsEditor" timestamp="1602699168025">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
-    <state x="341" y="175" key="SettingsEditor/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1600807311756" />
-    <state x="547" y="252" width="670" height="643" key="search.everywhere.popup" timestamp="1600519355328">
+    <state x="341" y="175" key="SettingsEditor/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1601234574552" />
+    <state x="341" y="175" key="SettingsEditor/0.23.1680.1027@0.23.1680.1027" timestamp="1602699168025" />
+    <state x="622" y="455" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1601225371349">
+      <screen x="0" y="23" width="1680" height="1027" />
+    </state>
+    <state x="622" y="455" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1601225371349" />
+    <state x="488" y="277" width="703" height="518" key="find.popup" timestamp="1602524872703">
+      <screen x="0" y="23" width="1680" height="1027" />
+    </state>
+    <state x="488" y="277" width="703" height="518" key="find.popup/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1602524872703" />
+    <state x="547" y="252" width="670" height="643" key="search.everywhere.popup" timestamp="1603041311405">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="547" y="252" width="670" height="643" key="search.everywhere.popup/-1250.-1057.1920.1057/0.23.1680.1027/670.-1057.1920.1057@0.23.1680.1027" timestamp="1596881560529" />
     <state x="1295" y="-839" width="670" height="676" key="search.everywhere.popup/-1250.-1080.1920.1080/0.0.1680.1050/670.-1080.1920.1080@670.-1080.1920.1080" timestamp="1596574277714" />
-    <state x="547" y="252" width="670" height="643" key="search.everywhere.popup/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1600519355328" />
+    <state x="547" y="252" width="670" height="643" key="search.everywhere.popup/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@0.23.1680.1027" timestamp="1603041311405" />
+    <state x="1295" y="-821" width="766" height="662" key="search.everywhere.popup/0.23.1680.1027/-1250.-1057.1920.1057/670.-1057.1920.1057@670.-1057.1920.1057" timestamp="1601234849612" />
+    <state x="547" y="252" width="670" height="643" key="search.everywhere.popup/0.23.1680.1027@0.23.1680.1027" timestamp="1602782362045" />
   </component>
 </project>
