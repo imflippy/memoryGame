@@ -14,16 +14,18 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
-});
-Broadcast::channel('updates', function ($user) {
-  return auth()->check();
-});
-
-
-
-//
-//Broadcast::channel('my-ch-{id}', function ($id, $text) {
-//    return $id;
+//Broadcast::channel('App.User.{id}', function ($user, $id) {
+//    return (int) $user->id === (int) $id;
 //});
+//Broadcast::channel('updates', function ($user) {
+//  return auth()->check();
+//});
+
+
+
+
+Broadcast::channel('lobby', function ($user) {
+    if(auth()->check()) {
+      return array('user' => $user);
+    }
+});

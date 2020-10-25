@@ -7,8 +7,8 @@ import Home from '@/js/Components/Home/Home.vue'
 import About from '@/js/Views/About.vue'
 import Login from '@/js/Components/Login/Login.vue'
 import Register from '@/js/Components/Register/Register.vue'
-import Game from '@/js/Components/Game/Lobby.vue'
-
+import Lobby from '@/js/Components/Game/Lobby.vue'
+import Game from '@/js/Components/Game/Game.vue';
 
 import {mapGetters} from "vuex";
 import store from "../Store";
@@ -41,13 +41,21 @@ const routes = [
     component: Register
   },
   {
-    path: '/game',
+    path: '/lobby',
+    name: 'Lobby',
+    component: Lobby,
+    meta: {
+      auth: true
+    }
+  },
+  {
+    path: '/game/:id',
     name: 'Game',
     component: Game,
     meta: {
       auth: true
     }
-  },
+  }
 ]
 
 const router = new VueRouter({

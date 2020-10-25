@@ -14,7 +14,7 @@ class BroadcastServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Broadcast::routes();
+      Broadcast::routes(['middleware' => ['jwt.verify']]); //if you use JWT
 
         require base_path('routes/channels.php');
     }

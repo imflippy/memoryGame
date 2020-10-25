@@ -1,16 +1,16 @@
 <template>
   <div>
     <span>Logged Users: {{ getOnlineUsers.length }}</span>
-    <ul>
-      <li v-for="(value, key) in getOnlineUsers">{{key}}. {{value.user.name}}</li>
-    </ul>
+    <span>Lobby Users: {{ lobbyUsers.length }}</span>
+<!--    <ul v-if="getOnlineUsers.length > 0">-->
+<!--      <li  v-for="(value, key) in getOnlineUsers">{{key}}. {{value.user.name}}</li>-->
+<!--    </ul>-->
   </div>
 
 </template>
 
 <script>
   import axios from "axios";
-  import Echo from "laravel-echo";
 
   const msgs = [];
   const idCh = Math.floor(Math.random() * 1000);
@@ -29,6 +29,7 @@
     },
     data() {
       return {
+        lobbyUsers: []
       }
     },
     methods: {
@@ -41,7 +42,22 @@
 
     },
     mounted() {
-
+      Echo.join('lobby')
+        .here((users) => {
+          console.log("HEREHEREHEREHEREHERE", users);
+          this.lobbyUsers = users;
+        })
+        .joining((user) => {
+          console.log("JOININGJOININGJOININGJOININGJOINING", user);
+          this.lobbyUsers.push(user);
+        })
+        .leaving((user) => {
+          console.log('LEAVINGLEAVINGLEAVINGLEAVINGLEAVING', user);
+          this.lobbyUsers.splice(this.lobbyUsers.indexOf(user), 1);
+        });
+    },
+    destroyed() {
+      Echo.leave('lobby');
     }
   }
 </script>

@@ -17,7 +17,7 @@ export const navigationLinks = {
   },
   'game': {
     'name': 'Play Game',
-    'href': '/game',
+    'href': '/lobby',
     'auth': true
   }
 };

@@ -20,8 +20,10 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 import Echo from 'laravel-echo';
 
 window.Pusher = require('pusher-js');
-
+window.Pusher.logToConsole = false;  // Default is true
 // let token = store && store.getters && store.getters.user && store.getters.user.access_token || "tokeb"
+// console.log("TOKENNnNNNNNNNNNN", token)
+
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: process.env.MIX_PUSHER_APP_KEY,

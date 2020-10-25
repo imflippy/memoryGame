@@ -11,6 +11,7 @@
 
   import {mapGetters, mapState} from "vuex";
   import Loader from './Components/Helpers/Loader';
+  // import Echo from "laravel-echo";
     export default {
       components: {
         'loader': Loader
@@ -25,11 +26,18 @@
       methods: {
         leaving() {
           if(this.user) this.$store.dispatch('logout');
+        },
+        listenForBroadcast() {
+          let token = this.user && this.user.access_token || "token";
+          if(token !== 'token') {
+            Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer ' + token;
+          }
         }
       },
       mounted() {
         if(this.user)  {
           this.$store.dispatch('getOnlineUsersFromDB');
+          this.listenForBroadcast();
         }
         Echo.channel('online-users')
           .listen('.online', (data) => {
@@ -42,6 +50,13 @@
             console.log('Neko je otisao, leaved ..')
             this.$store.dispatch('removeUserFromSocket', data.idUser);
           })
+      },
+      watch: {
+        user(val) {
+          if(val) {
+            this.listenForBroadcast();
+          }
+        }
       }
     }
 </script>
