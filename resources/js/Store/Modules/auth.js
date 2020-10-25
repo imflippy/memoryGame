@@ -39,8 +39,8 @@ const mutations = {
   removeOnlineUser(state, userId) {
     let userToDelete = state.onlineUsers.find(u => u.user_id === userId);
     let indexOfUser = state.onlineUsers.indexOf(userToDelete);
-    console.log(indexOfUser)
-    state.onlineUsers.splice(indexOfUser, 1);
+
+    if(indexOfUser !== -1) state.onlineUsers.splice(indexOfUser, 1);
 
     // state.onlineUsers = state.onlineUsers.filter(u => u.user_id !== userId);
 
@@ -56,7 +56,6 @@ const actions = {
       commit('setLoginMessage', '');
     })
     .catch(e => {
-      console.log(e, "GRESKA");
       if(e.response.data.error === 'Unauthorized') {
         commit('setLoginMessage', 'Wrong email or password, please try again');
       } else {
@@ -84,7 +83,7 @@ const actions = {
   },
   logout ({ commit, state }) {
     let userId = state.user.user.id;
-    commit('clearUserData', userId)
+    commit('clearUserData', userId);
     axios.post('/auth/logout', { userId: userId }).then(res => {
       console.log(res.data.message);
     }).catch(e => {

@@ -11,7 +11,6 @@
 
   import {mapGetters, mapState} from "vuex";
   import Loader from './Components/Helpers/Loader';
-  import {pusher} from "./variables";
     export default {
       components: {
         'loader': Loader
@@ -34,8 +33,8 @@
         }
         Echo.channel('online-users')
           .listen('.online', (data) => {
-            console.log("Usao je neko na kalan")
-            this.$store.dispatch('addUserFromSocket', data.newOnlineUser.user);
+            console.log("Usao je neko na kalan", data.newOnlineUser)
+            this.$store.dispatch('addUserFromSocket', data.newOnlineUser);
           })
 
         Echo.channel('logout')

@@ -43,8 +43,11 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $update = auth()->user()->updates()->save(new Update())->load('user');
+        $userInfoSendToSocket = new \stdClass();
+        $userInfoSendToSocket->user = $update->user;
+        $userInfoSendToSocket->user_id = $update->user_id;
 
-        broadcast(new OnlineUsers($update))->toOthers();
+        broadcast(new OnlineUsers($userInfoSendToSocket))->toOthers();
 
 //        return response()->json($update);
 
@@ -129,6 +132,8 @@ class AuthController extends Controller
 
   public function list()
   {
-    return response()->json(Update::latest()->with('user')->get());
+    $date = date("Y-m-d H:i:s", strtotime('-1 hours'));
+
+    return response()->json(Update::select('user_id')->where('created_at', '>', $date)->with('user')->orderBy('id', 'asc')->get());
   }
 }

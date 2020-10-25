@@ -2,7 +2,7 @@
   <div>
     <span>Logged Users: {{ getOnlineUsers.length }}</span>
     <ul>
-      <li></li>
+      <li v-for="(value, key) in getOnlineUsers">{{key}}. {{value.user.name}}</li>
     </ul>
   </div>
 
@@ -17,9 +17,6 @@
 
   import Pusher from 'pusher-js' //ima opcija da se doda da bude enkriptovano sve, pogmedaj na !npm
   Pusher.logToConsole = true;
-
-
-  import {pusher} from '../../variables.js';
 
 
   import Loader from "../Helpers/Loader";
@@ -44,17 +41,6 @@
 
     },
     mounted() {
-
-
-      //this.onlineUsers.push(this.user);
-      // this.joinQue();
-
-      // Echo.join('online')
-      //   .here(users => (this.users = users))
-      //   .joining(user => this.users.push(user))
-      //   .leaving(user => (this.users = this.users.filter(u => (u.id !== user.id))))
-
-
 
     }
   }

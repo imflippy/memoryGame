@@ -1922,7 +1922,6 @@ module.exports = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _Components_Helpers_Loader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Components/Helpers/Loader */ "./resources/js/Components/Helpers/Loader.vue");
-/* harmony import */ var _variables__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./variables */ "./resources/js/variables.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -1938,7 +1937,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -1963,9 +1961,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
 
     Echo.channel('online-users').listen('.online', function (data) {
-      console.log("Usao je neko na kalan");
+      console.log("Usao je neko na kalan", data.newOnlineUser);
 
-      _this.$store.dispatch('addUserFromSocket', data.newOnlineUser.user);
+      _this.$store.dispatch('addUserFromSocket', data.newOnlineUser);
     });
     Echo.channel('logout').listen('.offline', function (data) {
       console.log('Neko je otisao, leaved ..');
@@ -2127,9 +2125,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
 /* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 /* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(pusher_js__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _variables_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../variables.js */ "./resources/js/variables.js");
-/* harmony import */ var _Helpers_Loader__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Helpers/Loader */ "./resources/js/Components/Helpers/Loader.vue");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _Helpers_Loader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Helpers/Loader */ "./resources/js/Components/Helpers/Loader.vue");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -2155,11 +2152,10 @@ var idCh = Math.floor(Math.random() * 1000);
 pusher_js__WEBPACK_IMPORTED_MODULE_2___default.a.logToConsole = true;
 
 
-
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Lobby",
   components: {
-    'loader': _Helpers_Loader__WEBPACK_IMPORTED_MODULE_4__["default"]
+    'loader': _Helpers_Loader__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
   data: function data() {
     return {};
@@ -2167,14 +2163,8 @@ pusher_js__WEBPACK_IMPORTED_MODULE_2___default.a.logToConsole = true;
   methods: {
     joinQue: function joinQue() {}
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_5__["mapGetters"])(['user', 'getOnlineUsers'])),
-  mounted: function mounted() {//this.onlineUsers.push(this.user);
-    // this.joinQue();
-    // Echo.join('online')
-    //   .here(users => (this.users = users))
-    //   .joining(user => this.users.push(user))
-    //   .leaving(user => (this.users = this.users.filter(u => (u.id !== user.id))))
-  }
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_4__["mapGetters"])(['user', 'getOnlineUsers'])),
+  mounted: function mounted() {}
 });
 
 /***/ }),
@@ -28993,17 +28983,16 @@ var render = function() {
   return _c("div", [
     _c("span", [_vm._v("Logged Users: " + _vm._s(_vm.getOnlineUsers.length))]),
     _vm._v(" "),
-    _vm._m(0)
+    _c(
+      "ul",
+      _vm._l(_vm.getOnlineUsers, function(value, key) {
+        return _c("li", [_vm._v(_vm._s(key) + ". " + _vm._s(value.user.name))])
+      }),
+      0
+    )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", [_c("li")])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -49514,8 +49503,7 @@ var mutations = {
       return u.user_id === userId;
     });
     var indexOfUser = state.onlineUsers.indexOf(userToDelete);
-    console.log(indexOfUser);
-    state.onlineUsers.splice(indexOfUser, 1); // state.onlineUsers = state.onlineUsers.filter(u => u.user_id !== userId);
+    if (indexOfUser !== -1) state.onlineUsers.splice(indexOfUser, 1); // state.onlineUsers = state.onlineUsers.filter(u => u.user_id !== userId);
   }
 };
 var actions = {
@@ -49526,8 +49514,6 @@ var actions = {
       commit('setUserData', data);
       commit('setLoginMessage', '');
     })["catch"](function (e) {
-      console.log(e, "GRESKA");
-
       if (e.response.data.error === 'Unauthorized') {
         commit('setLoginMessage', 'Wrong email or password, please try again');
       } else {
@@ -49985,21 +49971,12 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_1__["default"]({
 /*!***********************************!*\
   !*** ./resources/js/variables.js ***!
   \***********************************/
-/*! exports provided: myVar, pusher, navigationLinks */
+/*! exports provided: navigationLinks */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "myVar", function() { return myVar; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pusher", function() { return pusher; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "navigationLinks", function() { return navigationLinks; });
-/* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
-/* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(pusher_js__WEBPACK_IMPORTED_MODULE_0__);
-
-var myVar = 'This is my var';
-var pusher = new pusher_js__WEBPACK_IMPORTED_MODULE_0___default.a('fbaa4e2714086ca20608', {
-  cluster: 'eu'
-});
 var navigationLinks = {
   'home': {
     'name': 'Home',
@@ -50021,12 +49998,7 @@ var navigationLinks = {
     'href': '/game',
     'auth': true
   }
-}; // export default  {
-//     myVar: "this is var my",
-//     pusher: new Pusher('fbaa4e2714086ca20608', {
-//         cluster: 'eu'
-//     })
-// }
+};
 
 /***/ }),
 
