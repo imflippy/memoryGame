@@ -26,6 +26,8 @@ Route::group([
   Route::post('refresh', 'AuthController@refresh');
   Route::get('user-profile', 'AuthController@userProfile');
   Route::get('/online', 'AuthController@list');
+
+ Route::post('generate-game', 'GameController@generateGame');
 });
 
 

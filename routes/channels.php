@@ -26,6 +26,19 @@ use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('lobby', function ($user) {
     if(auth()->check()) {
-      return array('user' => $user);
+      return $user;
     }
+});
+
+//Broadcast::channel('game.{gameId}', function ($game, $gameId) {
+//  if(auth()->check()) {
+//    return $game;
+//  }
+//});
+
+
+Broadcast::channel('game-info-users.{gameId}', function ($user, $gameId) {
+  if(auth()->check()) {
+    return $user;
+  }
 });

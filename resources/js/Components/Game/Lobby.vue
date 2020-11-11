@@ -12,12 +12,8 @@
 <script>
   import axios from "axios";
 
-  const msgs = [];
-  const idCh = Math.floor(Math.random() * 1000);
-
   import Pusher from 'pusher-js' //ima opcija da se doda da bude enkriptovano sve, pogmedaj na !npm
   Pusher.logToConsole = true;
-
 
   import Loader from "../Helpers/Loader";
   import {mapGetters} from "vuex";
@@ -33,8 +29,20 @@
       }
     },
     methods: {
-      joinQue() {
-
+      generateGame() {
+        if(this.lobbyUsers.length > 1) {
+          console.log("Vise ih je od 1")
+          axios.post('/auth/generate-game', {players: this.lobbyUsers}).
+          then(() => {
+            console.log("USPEO POST")
+          }).catch((ex) => {
+            console.log("NIJE USPEO", ex)
+          })
+        }
+      },
+      pickRandom(arr,count) {
+        let _arr = [...arr];
+        return[...Array(count)].map( ()=> _arr.splice(Math.floor(Math.random() * _arr.length), 1)[0] );
       }
     },
     computed: {
@@ -54,10 +62,22 @@
         .leaving((user) => {
           console.log('LEAVINGLEAVINGLEAVINGLEAVINGLEAVING', user);
           this.lobbyUsers.splice(this.lobbyUsers.indexOf(user), 1);
-        });
+        })
+
+      Echo.channel('generate-game-channel')
+        .listen('.generate', (data) => {
+          if(data.roomPlayersIds.includes(this.user.user.id)) {
+            this.$router.push('/game/' + data.roomId)
+          }
+        })
+
+      setTimeout(() => {
+        this.generateGame();
+      }, 500);
     },
     destroyed() {
       Echo.leave('lobby');
+      Echo.leaveChannel('generate-game-channel');
     }
   }
 </script>

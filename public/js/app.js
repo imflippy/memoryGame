@@ -2136,14 +2136,73 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 //
 //
 //
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: "Game"
+  name: "Game",
+  data: function data() {
+    return {
+      gameUsers: [],
+      getGameId: 0,
+      allCards: []
+    };
+  },
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['user', 'getOnlineUsers'])),
+  mounted: function mounted() {
+    var _this = this;
+
+    // setujem gameId da bih mogao u beforeDestroy da dohvatim Id i leave socket
+    this.getGameId = this.$route.params.id; // Echo.private(`game.${this.getGameId}`)
+    //   .listen('.game-info', (payload) => {
+    //     console.log(data, "GAME DATA");
+    //   });
+
+    Echo.join('game-info-users.' + this.getGameId).here(function (users) {
+      console.log("HEREHEREHEREHEREHEREGAME", users);
+
+      if (users.length > 2) {
+        console.log("NIJE TVOJ MEC");
+      } else {
+        _this.gameUsers = users;
+      }
+    }).joining(function (user) {
+      // console.log("JOININGJOININGJOININGJOININGJOININGGAME", user);
+      if (_this.gameUsers.length === 1) {
+        _this.gameUsers.push(user);
+      }
+    }).leaving(function (user) {
+      // console.log('LEAVINGLEAVINGLEAVINGLEAVINGLEAVINGGAME', user);
+      if (_this.gameUsers.length === 2) {
+        console.log("POBEDIK JE " + _this.user.user.name); //  TODO: Ovde treba uraditi redirect od trenutng usera na rutu gde je on pobedio mec - tek kada se uradi
+      }
+    });
+  },
+  beforeDestroy: function beforeDestroy() {
+    Echo.leave('game-info-users.' + this.getGameId);
+  }
 });
 
 /***/ }),
@@ -2169,6 +2228,18 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 //
 //
 //
@@ -2181,8 +2252,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 
-var msgs = [];
-var idCh = Math.floor(Math.random() * 1000);
  //ima opcija da se doda da bude enkriptovano sve, pogmedaj na !npm
 
 pusher_js__WEBPACK_IMPORTED_MODULE_1___default.a.logToConsole = true;
@@ -2199,7 +2268,25 @@ pusher_js__WEBPACK_IMPORTED_MODULE_1___default.a.logToConsole = true;
     };
   },
   methods: {
-    joinQue: function joinQue() {}
+    generateGame: function generateGame() {
+      if (this.lobbyUsers.length > 1) {
+        console.log("Vise ih je od 1");
+        axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/auth/generate-game', {
+          players: this.lobbyUsers
+        }).then(function () {
+          console.log("USPEO POST");
+        })["catch"](function (ex) {
+          console.log("NIJE USPEO", ex);
+        });
+      }
+    },
+    pickRandom: function pickRandom(arr, count) {
+      var _arr = _toConsumableArray(arr);
+
+      return _toConsumableArray(Array(count)).map(function () {
+        return _arr.splice(Math.floor(Math.random() * _arr.length), 1)[0];
+      });
+    }
   },
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_3__["mapGetters"])(['user', 'getOnlineUsers'])),
   mounted: function mounted() {
@@ -2217,9 +2304,18 @@ pusher_js__WEBPACK_IMPORTED_MODULE_1___default.a.logToConsole = true;
 
       _this.lobbyUsers.splice(_this.lobbyUsers.indexOf(user), 1);
     });
+    Echo.channel('generate-game-channel').listen('.generate', function (data) {
+      if (data.roomPlayersIds.includes(_this.user.user.id)) {
+        _this.$router.push('/game/' + data.roomId);
+      }
+    });
+    setTimeout(function () {
+      _this.generateGame();
+    }, 500);
   },
   destroyed: function destroyed() {
     Echo.leave('lobby');
+    Echo.leaveChannel('generate-game-channel');
   }
 });
 
@@ -3118,7 +3214,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "", ""]);
+exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: calc(100vh - 78px);\n  margin: 0 auto;\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n}\n.game-wrapper .game-body .game-card {\n  background: yellow;\n  height: 120px;\n  width: 120px;\n  margin: 10px;\n}", ""]);
 
 // exports
 
@@ -29085,11 +29181,46 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "game-wrapper" }, [
-    _c("h1", [_vm._v("Id of route: " + _vm._s(_vm.$route.params.id))])
-  ])
+  return _vm._m(0)
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "game-wrapper" }, [
+      _c("div", { staticClass: "game-header" }),
+      _vm._v(" "),
+      _c("div", { staticClass: "game-body" }, [
+        _c("div", { staticClass: "game-card" }),
+        _vm._v(" "),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _vm._v(" "),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _vm._v(" "),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _vm._v(" "),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" }),
+        _c("div", { staticClass: "game-card" })
+      ])
+    ])
+  }
+]
 render._withStripped = true
 
 
