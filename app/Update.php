@@ -12,7 +12,7 @@ class Update extends Model
    * @var array
    */
   protected $fillable = [
-    'user_id', 'text'
+    'user_id'
   ];
 
   /**

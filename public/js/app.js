@@ -2154,12 +2154,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Game",
@@ -2171,34 +2165,74 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
   },
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['user', 'getOnlineUsers'])),
-  mounted: function mounted() {
-    var _this = this;
+  methods: {
+    getCards: function getCards() {
+      var _this = this;
 
+      var params = {
+        gameId: this.getGameId
+      };
+      axios.get('/get-cards', {
+        params: params
+      }).then(function (res) {
+        _this.allCards = res.data;
+      })["catch"](function (err) {
+        console.log('ERROR WITH CAREDS', err);
+      });
+    },
+    shuffle: function shuffle(array) {
+      var currentIndex = array.length,
+          temporaryValue,
+          randomIndex; // While there remain elements to shuffle...
+
+      while (0 !== currentIndex) {
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1; // And swap it with the current element.
+
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+      }
+
+      return array;
+    },
+    listenToUsersActivity: function listenToUsersActivity() {
+      var _this2 = this;
+
+      Echo.join('game-info-users.' + this.getGameId).here(function (users) {
+        console.log("HEREHEREHEREHEREHEREGAME", users);
+
+        if (users.length > 2) {
+          console.log("NIJE TVOJ MEC");
+        } else {
+          _this2.gameUsers = users;
+        }
+      }).joining(function (user) {
+        // console.log("JOININGJOININGJOININGJOININGJOININGGAME", user);
+        if (_this2.gameUsers.length === 1) {
+          _this2.gameUsers.push(user);
+        }
+      }).leaving(function (user) {
+        // console.log('LEAVINGLEAVINGLEAVINGLEAVINGLEAVINGGAME', user);
+        if (_this2.gameUsers.length === 2) {
+          console.log("POBEDIK JE " + _this2.user.user.name); //  TODO: Ovde treba uraditi redirect od trenutng usera na rutu gde je on pobedio mec - tek kada se uradi
+        }
+      }).listen('.GenerateCards', function (res) {
+        console.log("LISTEN", res);
+        _this2.allCards = res.cards;
+      });
+    }
+  },
+  mounted: function mounted() {
     // setujem gameId da bih mogao u beforeDestroy da dohvatim Id i leave socket
-    this.getGameId = this.$route.params.id; // Echo.private(`game.${this.getGameId}`)
+    this.getGameId = this.$route.params.id;
+    this.listenToUsersActivity(); // Echo.private(`game.${this.getGameId}`)
     //   .listen('.game-info', (payload) => {
     //     console.log(data, "GAME DATA");
     //   });
 
-    Echo.join('game-info-users.' + this.getGameId).here(function (users) {
-      console.log("HEREHEREHEREHEREHEREGAME", users);
-
-      if (users.length > 2) {
-        console.log("NIJE TVOJ MEC");
-      } else {
-        _this.gameUsers = users;
-      }
-    }).joining(function (user) {
-      // console.log("JOININGJOININGJOININGJOININGJOININGGAME", user);
-      if (_this.gameUsers.length === 1) {
-        _this.gameUsers.push(user);
-      }
-    }).leaving(function (user) {
-      // console.log('LEAVINGLEAVINGLEAVINGLEAVINGLEAVINGGAME', user);
-      if (_this.gameUsers.length === 2) {
-        console.log("POBEDIK JE " + _this.user.user.name); //  TODO: Ovde treba uraditi redirect od trenutng usera na rutu gde je on pobedio mec - tek kada se uradi
-      }
-    });
+    this.getCards(); //dohvatam inicijalno sve karte
   },
   beforeDestroy: function beforeDestroy() {
     Echo.leave('game-info-users.' + this.getGameId);
@@ -3214,7 +3248,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: calc(100vh - 78px);\n  margin: 0 auto;\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n}\n.game-wrapper .game-body .game-card {\n  background: yellow;\n  height: 120px;\n  width: 120px;\n  margin: 10px;\n}", ""]);
+exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: calc(100vh - 78px);\n  margin: 0 auto;\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: 100%;\n  margin: 0 auto;\n}\n.game-wrapper .game-body .all-cards {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  height: 100%;\n}\n.game-wrapper .game-body .all-cards .game-card {\n  background: yellow;\n  height: 150px;\n  width: 150px;\n  margin: 10px;\n}", ""]);
 
 // exports
 
@@ -29181,46 +29215,24 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "game-wrapper" }, [
-      _c("div", { staticClass: "game-header" }),
-      _vm._v(" "),
-      _c("div", { staticClass: "game-body" }, [
-        _c("div", { staticClass: "game-card" }),
-        _vm._v(" "),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _vm._v(" "),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _vm._v(" "),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _vm._v(" "),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" }),
-        _c("div", { staticClass: "game-card" })
-      ])
+  return _c("div", { staticClass: "game-wrapper" }, [
+    _c("div", { staticClass: "game-header" }),
+    _vm._v(" "),
+    _c("div", { staticClass: "game-body" }, [
+      _c(
+        "div",
+        { staticClass: "all-cards" },
+        _vm._l(_vm.allCards, function(card, cId) {
+          return _c("div", { key: cId, staticClass: "game-card" }, [
+            _vm._v(_vm._s(card.id))
+          ])
+        }),
+        0
+      )
     ])
-  }
-]
+  ])
+}
+var staticRenderFns = []
 render._withStripped = true
 
 

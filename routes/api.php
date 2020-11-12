@@ -34,7 +34,7 @@ Route::group([
 Route::group([
   'middleware' => 'api',
 ], function ($router) {
-
+  Route::get('get-cards', "CardsController@getCards");
 });
 
 

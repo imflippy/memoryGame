@@ -10,21 +10,21 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class GameInfoEvent implements ShouldBroadcast
+class GenerateCards implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $gameId;
-    public $user;
+    public $cards;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($user, $gameId)
+    public function __construct($gameId, $cards)
     {
         $this->gameId = $gameId;
-        $this->user = $user;
+        $this->cards = $cards;
     }
 
     /**
@@ -36,4 +36,8 @@ class GameInfoEvent implements ShouldBroadcast
     {
       return new PresenceChannel('game-info-users.'. $this->gameId);
     }
+
+  public function broadcastAs() {
+    return 'GenerateCards';
+  }
 }
