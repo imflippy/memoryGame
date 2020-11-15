@@ -1,0 +1,29 @@
+.lobby-wrapper {
+  height: 420px;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  margin: 0 auto;
+  margin-top: 20px;
+  .lobby-top {
+    div {
+      text-align: center;
+      font-size: 34px;
+      color: $textColor;
+      span {
+        font-size: 40px;
+        color: $textColorActive;
+      }
+    }
+  }
+  .lobby-bot {
+    color: $textColor;
+    text-align: center;
+    font-size: 34px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+}

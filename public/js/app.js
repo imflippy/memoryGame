@@ -2138,6 +2138,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _GameCard__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./GameCard */ "./resources/js/Components/Game/GameCard.vue");
+/* harmony import */ var _UserStats__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./UserStats */ "./resources/js/Components/Game/UserStats.vue");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -2164,12 +2165,34 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Game",
   components: {
-    GameCard: _GameCard__WEBPACK_IMPORTED_MODULE_1__["default"]
+    GameCard: _GameCard__WEBPACK_IMPORTED_MODULE_1__["default"],
+    UserStats: _UserStats__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   data: function data() {
     return {
@@ -2180,14 +2203,45 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       currentRoundCards: [],
       myCards: [],
       opponentCards: [],
-      playerTurn: false //stavi false
-
+      playerTurn: false,
+      //stavi false,
+      stopwatchTime: 0
     };
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['user', 'getOnlineUsers'])),
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['user', 'getOnlineUsers'])), {}, {
+    calculateRemainingPairs: function calculateRemainingPairs() {
+      return this.allCards.length / 2 - this.myCards.length - this.opponentCards.length;
+    },
+    stopwatch: function stopwatch() {
+      var mins = Math.floor(this.stopwatchTime / 10 / 60);
+      var secs = Math.floor(this.stopwatchTime / 10 - mins * 60); // let tenths = Math.floor(this.stopwatchTime % 10);
+
+      if (mins <= 9) {
+        mins = "0" + mins;
+      }
+
+      if (secs <= 9) {
+        secs = "0" + secs;
+      } // if(tenths <= 9){
+      //   tenths = "0" + tenths;
+      // }
+      // return mins + ":" + secs + ":" + tenths;
+
+
+      return mins + ":" + secs;
+    },
+    getOpponentData: function getOpponentData() {
+      var _this = this;
+
+      var opponent = this.gameUsers.filter(function (u) {
+        return u.id !== _this.user.user.id;
+      })[0];
+      return opponent;
+    }
+  }),
   methods: {
     getCards: function getCards() {
-      var _this = this;
+      var _this2 = this;
 
       var params = {
         gameId: this.getGameId
@@ -2195,30 +2249,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       axios.get('/get-cards', {
         params: params
       }).then(function (res) {
-        _this.allCards = res.data;
+        _this2.allCards = res.data;
       })["catch"](function (err) {
         console.log('ERROR WITH CAREDS', err);
       });
     },
-    shuffle: function shuffle(array) {
-      var currentIndex = array.length,
-          temporaryValue,
-          randomIndex; // While there remain elements to shuffle...
-
-      while (0 !== currentIndex) {
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1; // And swap it with the current element.
-
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-      }
-
-      return array;
-    },
     listenToUsersActivity: function listenToUsersActivity() {
-      var _this2 = this;
+      var _this3 = this;
 
       Echo.join('game-info-users.' + this.getGameId).here(function (users) {
         console.log("HEREHEREHEREHEREHEREGAME", users);
@@ -2226,40 +2263,40 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         if (users.length > 2) {
           console.log("NIJE TVOJ MEC");
         } else {
-          _this2.gameUsers = users;
+          _this3.gameUsers = users;
         }
       }).joining(function (user) {
-        if (_this2.gameUsers.length === 1) {
-          _this2.gameUsers.push(user);
+        if (_this3.gameUsers.length === 1) {
+          _this3.gameUsers.push(user);
 
-          _this2.playerTurn = true;
+          _this3.playerTurn = true;
         }
       }).leaving(function (user) {
-        if (_this2.gameUsers.length === 2) {
-          console.log("POBEDIK JE " + _this2.user.user.name); //  TODO: Ovde treba uraditi redirect od trenutng usera na rutu gde je on pobedio mec - tek kada se uradi
+        if (_this3.gameUsers.length === 2) {
+          console.log("POBEDIK JE " + _this3.user.user.name); //  TODO: Ovde treba uraditi redirect od trenutng usera na rutu gde je on pobedio mec - tek kada se uradi
         }
       }).listen('.GenerateCards', function (res) {
         // console.log("LISTEN", res);
-        _this2.allCards = res.cards;
+        _this3.allCards = res.cards;
       }).listen('GameEvent', function (res) {
         var newCurrRoundCardKeys = res.data.currentRoundCardsKeys;
         var newCurrRoundCard = res.data.currentRoundCards;
         var sameCardId = res.data.sameCardId;
-        _this2.currentRoundCardsKeys = newCurrRoundCardKeys;
-        _this2.currentRoundCards = newCurrRoundCard;
+        _this3.currentRoundCardsKeys = newCurrRoundCardKeys;
+        _this3.currentRoundCards = newCurrRoundCard;
 
         if (newCurrRoundCardKeys.length === 2) {
           setTimeout(function () {
             if (sameCardId !== 0) {
-              _this2.playerTurn ? _this2.myCards.push(sameCardId) : _this2.opponentCards.push(sameCardId);
+              _this3.playerTurn ? _this3.myCards.push(sameCardId) : _this3.opponentCards.push(sameCardId);
             }
           }, 500);
           setTimeout(function () {
-            _this2.currentRoundCardsKeys = [];
-            _this2.currentRoundCards = [];
+            _this3.currentRoundCardsKeys = [];
+            _this3.currentRoundCards = [];
 
             if (res.data.changeUser) {
-              _this2.playerTurn = !_this2.playerTurn;
+              _this3.playerTurn = !_this3.playerTurn;
             }
           }, 2000);
         }
@@ -2293,6 +2330,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     this.getGameId = this.$route.params.id;
     this.listenToUsersActivity();
     this.getCards(); //dohvatam inicijalno sve karte
+  },
+  watch: {
+    gameUsers: function gameUsers(newVal) {
+      var _this4 = this;
+
+      if (newVal.length === 2) {
+        setInterval(function () {
+          _this4.stopwatchTime = _this4.stopwatchTime + 10;
+        }, 1000);
+      }
+    }
   },
   beforeDestroy: function beforeDestroy() {
     Echo.leave('game-info-users.' + this.getGameId);
@@ -2419,6 +2467,12 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
  //ima opcija da se doda da bude enkriptovano sve, pogmedaj na !npm
 
@@ -2473,17 +2527,68 @@ pusher_js__WEBPACK_IMPORTED_MODULE_1___default.a.logToConsole = true;
       _this.lobbyUsers.splice(_this.lobbyUsers.indexOf(user), 1);
     });
     Echo.channel('generate-game-channel').listen('.generate', function (data) {
-      if (data.roomPlayersIds.includes(_this.user.user.id)) {
+      if (data.roomPlayersIds.includes(_this.user.user.id) && _this.lobbyUsers.length > 1) {
         _this.$router.push('/game/' + data.roomId);
       }
     });
     setTimeout(function () {
       _this.generateGame();
-    }, 500);
+    }, 1000);
   },
   destroyed: function destroyed() {
     Echo.leave('lobby');
     Echo.leaveChannel('generate-game-channel');
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Game/UserStats.vue?vue&type=script&lang=js&":
+/*!*************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Game/UserStats.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "UserStats",
+  props: {
+    user: {
+      "default": undefined
+    },
+    newClass: {
+      "default": ''
+    },
+    isOnTurn: {
+      required: true,
+      "default": false
+    },
+    playerCards: {
+      "default": undefined
+    }
   }
 });
 
@@ -2566,6 +2671,9 @@ __webpack_require__.r(__webpack_exports__);
     globalLoader: {
       type: Boolean,
       "default": false
+    },
+    size: {
+      "default": ''
     }
   }
 });
@@ -3382,7 +3490,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: calc(100vh - 78px);\n  margin: 0 auto;\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: 100%;\n  margin: 0 auto;\n}\n.game-wrapper .game-body .all-cards {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  height: 100%;\n}", ""]);
+exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: calc(100vh - 78px);\n  margin: 0 auto;\n}\n.game-wrapper .game-header {\n  height: 90px;\n  display: flex;\n  justify-content: space-between;\n  padding: 10px 0;\n}\n.game-wrapper .game-header .game-stats {\n  min-width: 160px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  flex-direction: column;\n}\n.game-wrapper .game-header .game-stats .remaining {\n  width: 100%;\n  color: #fff;\n  text-transform: uppercase;\n  font-size: 20px;\n  display: flex;\n  justify-content: space-evenly;\n  align-items: center;\n}\n.game-wrapper .game-header .game-stats .remaining .number {\n  color: #fddb3a;\n  font-size: 26px;\n}\n.game-wrapper .game-header .game-stats .stopwatch {\n  width: 100%;\n  color: #fddb3a;\n  font-size: 26px;\n  text-align: center;\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: 100%;\n  margin: 0 auto;\n}\n.game-wrapper .game-body .all-cards {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  height: 100%;\n}", ""]);
 
 // exports
 
@@ -3402,7 +3510,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".game-card-wrapper {\n  height: 150px;\n  width: 150px;\n  position: relative;\n}\n.game-card-wrapper .game-card {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  transform-style: preserve-3d;\n  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n  border-radius: 10px;\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n}\n.game-card-wrapper .game-card .front {\n  background: url(" + escape(__webpack_require__(/*! ../../../../public/img/brain.png */ "./public/img/brain.png")) + ");\n  background-position: center;\n  background-size: 45%;\n  background-repeat: no-repeat;\n}\n.game-card-wrapper .game-card div {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  -webkit-backface-visibility: hidden;\n          backface-visibility: hidden;\n  border-radius: 6px;\n  background: #fff;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font: 16px/1.5 \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-smoothing: antialiased;\n  color: #47525D;\n}\n.game-card-wrapper .game-card .back {\n  transform: rotateY(180deg);\n}\n.game-card-wrapper .game-card.opened {\n  transform: rotateY(180deg);\n}\n.game-card-wrapper .game-card.my-card, .game-card-wrapper .game-card.opponent-card {\n  -webkit-animation-name: disappearCard;\n          animation-name: disappearCard;\n  -webkit-animation-duration: 1500ms;\n          animation-duration: 1500ms;\n  -webkit-animation-fill-mode: forwards;\n          animation-fill-mode: forwards;\n}\n@-webkit-keyframes disappearCard {\n0% {\n    opacity: 1;\n    transform: rotateY(90deg);\n}\n50% {\n    opacity: 0.5;\n    transform: rotateY(0deg);\n}\n100% {\n    display: none;\n    opacity: 0;\n    transform: rotateY(90deg);\n}\n}\n@keyframes disappearCard {\n0% {\n    opacity: 1;\n    transform: rotateY(90deg);\n}\n50% {\n    opacity: 0.5;\n    transform: rotateY(0deg);\n}\n100% {\n    display: none;\n    opacity: 0;\n    transform: rotateY(90deg);\n}\n}", ""]);
+exports.push([module.i, ".game-card-wrapper {\n  height: 150px;\n  width: 150px;\n  position: relative;\n  margin: 4px;\n}\n.game-card-wrapper .game-card {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  transform-style: preserve-3d;\n  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n  border-radius: 10px;\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n}\n.game-card-wrapper .game-card .front {\n  background: url(" + escape(__webpack_require__(/*! ../../../../public/img/brain.png */ "./public/img/brain.png")) + ");\n  background-position: center;\n  background-size: 45%;\n  background-repeat: no-repeat;\n}\n.game-card-wrapper .game-card div {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  -webkit-backface-visibility: hidden;\n          backface-visibility: hidden;\n  border-radius: 6px;\n  background: #fff;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font: 16px/1.5 \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-smoothing: antialiased;\n  color: #47525D;\n}\n.game-card-wrapper .game-card .back {\n  transform: rotateY(180deg);\n}\n.game-card-wrapper .game-card.opened {\n  transform: rotateY(180deg);\n}\n.game-card-wrapper .game-card.my-card, .game-card-wrapper .game-card.opponent-card {\n  -webkit-animation-name: disappearCard;\n          animation-name: disappearCard;\n  -webkit-animation-duration: 1500ms;\n          animation-duration: 1500ms;\n  -webkit-animation-fill-mode: forwards;\n          animation-fill-mode: forwards;\n}\n@-webkit-keyframes disappearCard {\n0% {\n    opacity: 1;\n    transform: rotateY(90deg);\n}\n50% {\n    opacity: 0.5;\n    transform: rotateY(0deg);\n}\n100% {\n    display: none;\n    opacity: 0;\n    transform: rotateY(90deg);\n}\n}\n@keyframes disappearCard {\n0% {\n    opacity: 1;\n    transform: rotateY(90deg);\n}\n50% {\n    opacity: 0.5;\n    transform: rotateY(0deg);\n}\n100% {\n    display: none;\n    opacity: 0;\n    transform: rotateY(90deg);\n}\n}", ""]);
 
 // exports
 
@@ -3421,7 +3529,26 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "", ""]);
+exports.push([module.i, ".lobby-wrapper {\n  height: 420px;\n  max-width: 1200px;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  flex-direction: column;\n  margin: 0 auto;\n  margin-top: 20px;\n}\n.lobby-wrapper .lobby-top div {\n  text-align: center;\n  font-size: 34px;\n  color: #fff;\n}\n.lobby-wrapper .lobby-top div span {\n  font-size: 40px;\n  color: #fddb3a;\n}\n.lobby-wrapper .lobby-bot {\n  color: #fff;\n  text-align: center;\n  font-size: 34px;\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss&":
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss& ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, ".user-stats-wrapper {\n  width: 100%;\n  height: 100%;\n  padding: 0 20px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  border-radius: 10px;\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);\n}\n.user-stats-wrapper .player-stats {\n  height: 100%;\n  display: flex;\n  justify-content: space-evenly;\n  flex-direction: column;\n}\n.user-stats-wrapper .player-stats .player, .user-stats-wrapper .player-stats .stats {\n  display: flex;\n  align-items: center;\n}\n.user-stats-wrapper .player-stats .player p, .user-stats-wrapper .player-stats .stats p {\n  color: #fff;\n  font-size: 18px;\n}\n.user-stats-wrapper .player-stats .player span, .user-stats-wrapper .player-stats .stats span {\n  padding: 0 8px;\n  color: #fddb3a;\n  font-size: 20px;\n}\n.user-stats-wrapper .waiting {\n  font-size: 22px;\n  color: #fff;\n}\n.user-stats-wrapper .is-player-turn {\n  height: 100%;\n}\n.user-stats-wrapper .is-player-turn .player-turn {\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.user-stats-wrapper .is-player-turn .player-turn img {\n  width: auto;\n  height: 70%;\n}\n.user-stats-wrapper.opponent-stats {\n  flex-direction: row-reverse;\n}", ""]);
 
 // exports
 
@@ -3459,7 +3586,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".global-overlay {\n  z-index: 1001;\n  width: 100vw;\n  height: 100vh;\n  background-color: #003754;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.global-overlay .overlay-loader {\n  display: block;\n  margin: auto;\n  width: 213px;\n  height: 213px;\n  position: relative;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.global-overlay .loader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  width: 213px;\n  height: 213px;\n  animation-name: rotateAnim;\n  -o-animation-name: rotateAnim;\n  -ms-animation-name: rotateAnim;\n  -webkit-animation-name: rotateAnim;\n  -moz-animation-name: rotateAnim;\n  animation-duration: 0.4s;\n  -o-animation-duration: 0.4s;\n  -ms-animation-duration: 0.4s;\n  -webkit-animation-duration: 0.4s;\n  -moz-animation-duration: 0.4s;\n  animation-iteration-count: infinite;\n  -o-animation-iteration-count: infinite;\n  -ms-animation-iteration-count: infinite;\n  -webkit-animation-iteration-count: infinite;\n  -moz-animation-iteration-count: infinite;\n  animation-timing-function: linear;\n  -o-animation-timing-function: linear;\n  -ms-animation-timing-function: linear;\n  -webkit-animation-timing-function: linear;\n  -moz-animation-timing-function: linear;\n}\n.global-overlay .loader div {\n  width: 17px;\n  height: 17px;\n  border-radius: 50%;\n  border: 2px solid #fddb3a;\n  position: absolute;\n  top: 4px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n}\n.global-overlay .loader div:nth-child(odd) {\n  border-top: none;\n  border-left: none;\n}\n.global-overlay .loader div:nth-child(even) {\n  border-bottom: none;\n  border-right: none;\n}\n.global-overlay .loader div:nth-child(2) {\n  border-width: 4px;\n  left: 0px;\n  top: -9px;\n  width: 26px;\n  height: 26px;\n}\n.global-overlay .loader div:nth-child(3) {\n  border-width: 4px;\n  left: -2px;\n  top: 6px;\n  width: 38px;\n  height: 38px;\n}\n.global-overlay .loader div:nth-child(4) {\n  border-width: 6px;\n  left: -2px;\n  top: -9px;\n  width: 51px;\n  height: 51px;\n}\n.global-overlay .loader div:nth-child(5) {\n  border-width: 6px;\n  left: -2px;\n  top: 9px;\n  width: 68px;\n  height: 68px;\n}\n.global-overlay .loader div:nth-child(6) {\n  border-width: 9px;\n  left: 0px;\n  top: -9px;\n  width: 85px;\n  height: 85px;\n}\n.global-overlay .loader div:nth-child(7) {\n  border-width: 9px;\n  left: 0px;\n  top: 13px;\n  width: 106px;\n  height: 106px;\n}\n@keyframes rotateAnim {\nfrom {\n    transform: rotate(360deg);\n}\nto {\n    transform: rotate(0deg);\n}\n}\n@-webkit-keyframes rotateAnim {\nfrom {\n    -webkit-transform: rotate(360deg);\n}\nto {\n    -webkit-transform: rotate(0deg);\n}\n}\n.overlay-loader {\n  display: block;\n  margin: auto;\n  width: 62px;\n  height: 62px;\n  position: relative;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.loader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  width: 62px;\n  height: 62px;\n  animation-name: rotateAnim;\n  -o-animation-name: rotateAnim;\n  -ms-animation-name: rotateAnim;\n  -webkit-animation-name: rotateAnim;\n  -moz-animation-name: rotateAnim;\n  animation-duration: 0.35s;\n  -o-animation-duration: 0.35s;\n  -ms-animation-duration: 0.35s;\n  -webkit-animation-duration: 0.35s;\n  -moz-animation-duration: 0.35s;\n  animation-iteration-count: infinite;\n  -o-animation-iteration-count: infinite;\n  -ms-animation-iteration-count: infinite;\n  -webkit-animation-iteration-count: infinite;\n  -moz-animation-iteration-count: infinite;\n  animation-timing-function: linear;\n  -o-animation-timing-function: linear;\n  -ms-animation-timing-function: linear;\n  -webkit-animation-timing-function: linear;\n  -moz-animation-timing-function: linear;\n}\n.loader div {\n  width: 5px;\n  height: 5px;\n  border-radius: 50%;\n  border: 1px solid #fddb3a;\n  position: absolute;\n  top: 1px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n}\n.loader div:nth-child(odd) {\n  border-top: none;\n  border-left: none;\n}\n.loader div:nth-child(even) {\n  border-bottom: none;\n  border-right: none;\n}\n.loader div:nth-child(2) {\n  border-width: 1px;\n  left: 0px;\n  top: -2px;\n  width: 7px;\n  height: 7px;\n}\n.loader div:nth-child(3) {\n  border-width: 1px;\n  left: -1px;\n  top: 2px;\n  width: 11px;\n  height: 11px;\n}\n.loader div:nth-child(4) {\n  border-width: 2px;\n  left: -1px;\n  top: -2px;\n  width: 15px;\n  height: 15px;\n}\n.loader div:nth-child(5) {\n  border-width: 2px;\n  left: -1px;\n  top: 2px;\n  width: 20px;\n  height: 20px;\n}\n.loader div:nth-child(6) {\n  border-width: 2px;\n  left: 0px;\n  top: -2px;\n  width: 25px;\n  height: 25px;\n}\n.loader div:nth-child(7) {\n  border-width: 2px;\n  left: 0px;\n  top: 4px;\n  width: 31px;\n  height: 31px;\n}\n@keyframes rotateAnim {\nfrom {\n    transform: rotate(360deg);\n}\nto {\n    transform: rotate(0deg);\n}\n}\n@-webkit-keyframes rotateAnim {\nfrom {\n    -webkit-transform: rotate(360deg);\n}\nto {\n    -webkit-transform: rotate(0deg);\n}\n}", ""]);
+exports.push([module.i, ".global-overlay {\n  z-index: 1001;\n  width: 100vw;\n  height: 100vh;\n  background-color: #003754;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.global-overlay.lobby {\n  z-index: 0;\n  width: 200px;\n  height: 200px;\n  background-color: transparent;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.global-overlay .overlay-loader {\n  display: block;\n  margin: auto;\n  width: 213px;\n  height: 213px;\n  position: relative;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.global-overlay .loader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  width: 213px;\n  height: 213px;\n  animation-name: rotateAnim;\n  -o-animation-name: rotateAnim;\n  -ms-animation-name: rotateAnim;\n  -webkit-animation-name: rotateAnim;\n  -moz-animation-name: rotateAnim;\n  animation-duration: 0.4s;\n  -o-animation-duration: 0.4s;\n  -ms-animation-duration: 0.4s;\n  -webkit-animation-duration: 0.4s;\n  -moz-animation-duration: 0.4s;\n  animation-iteration-count: infinite;\n  -o-animation-iteration-count: infinite;\n  -ms-animation-iteration-count: infinite;\n  -webkit-animation-iteration-count: infinite;\n  -moz-animation-iteration-count: infinite;\n  animation-timing-function: linear;\n  -o-animation-timing-function: linear;\n  -ms-animation-timing-function: linear;\n  -webkit-animation-timing-function: linear;\n  -moz-animation-timing-function: linear;\n}\n.global-overlay .loader div {\n  width: 17px;\n  height: 17px;\n  border-radius: 50%;\n  border: 2px solid #fddb3a;\n  position: absolute;\n  top: 4px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n}\n.global-overlay .loader div:nth-child(odd) {\n  border-top: none;\n  border-left: none;\n}\n.global-overlay .loader div:nth-child(even) {\n  border-bottom: none;\n  border-right: none;\n}\n.global-overlay .loader div:nth-child(2) {\n  border-width: 4px;\n  left: 0px;\n  top: -9px;\n  width: 26px;\n  height: 26px;\n}\n.global-overlay .loader div:nth-child(3) {\n  border-width: 4px;\n  left: -2px;\n  top: 6px;\n  width: 38px;\n  height: 38px;\n}\n.global-overlay .loader div:nth-child(4) {\n  border-width: 6px;\n  left: -2px;\n  top: -9px;\n  width: 51px;\n  height: 51px;\n}\n.global-overlay .loader div:nth-child(5) {\n  border-width: 6px;\n  left: -2px;\n  top: 9px;\n  width: 68px;\n  height: 68px;\n}\n.global-overlay .loader div:nth-child(6) {\n  border-width: 9px;\n  left: 0px;\n  top: -9px;\n  width: 85px;\n  height: 85px;\n}\n.global-overlay .loader div:nth-child(7) {\n  border-width: 9px;\n  left: 0px;\n  top: 13px;\n  width: 106px;\n  height: 106px;\n}\n@keyframes rotateAnim {\nfrom {\n    transform: rotate(360deg);\n}\nto {\n    transform: rotate(0deg);\n}\n}\n@-webkit-keyframes rotateAnim {\nfrom {\n    -webkit-transform: rotate(360deg);\n}\nto {\n    -webkit-transform: rotate(0deg);\n}\n}\n.overlay-loader {\n  display: block;\n  margin: auto;\n  width: 62px;\n  height: 62px;\n  position: relative;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.loader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  width: 62px;\n  height: 62px;\n  animation-name: rotateAnim;\n  -o-animation-name: rotateAnim;\n  -ms-animation-name: rotateAnim;\n  -webkit-animation-name: rotateAnim;\n  -moz-animation-name: rotateAnim;\n  animation-duration: 0.35s;\n  -o-animation-duration: 0.35s;\n  -ms-animation-duration: 0.35s;\n  -webkit-animation-duration: 0.35s;\n  -moz-animation-duration: 0.35s;\n  animation-iteration-count: infinite;\n  -o-animation-iteration-count: infinite;\n  -ms-animation-iteration-count: infinite;\n  -webkit-animation-iteration-count: infinite;\n  -moz-animation-iteration-count: infinite;\n  animation-timing-function: linear;\n  -o-animation-timing-function: linear;\n  -ms-animation-timing-function: linear;\n  -webkit-animation-timing-function: linear;\n  -moz-animation-timing-function: linear;\n}\n.loader div {\n  width: 5px;\n  height: 5px;\n  border-radius: 50%;\n  border: 1px solid #fddb3a;\n  position: absolute;\n  top: 1px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n}\n.loader div:nth-child(odd) {\n  border-top: none;\n  border-left: none;\n}\n.loader div:nth-child(even) {\n  border-bottom: none;\n  border-right: none;\n}\n.loader div:nth-child(2) {\n  border-width: 1px;\n  left: 0px;\n  top: -2px;\n  width: 7px;\n  height: 7px;\n}\n.loader div:nth-child(3) {\n  border-width: 1px;\n  left: -1px;\n  top: 2px;\n  width: 11px;\n  height: 11px;\n}\n.loader div:nth-child(4) {\n  border-width: 2px;\n  left: -1px;\n  top: -2px;\n  width: 15px;\n  height: 15px;\n}\n.loader div:nth-child(5) {\n  border-width: 2px;\n  left: -1px;\n  top: 2px;\n  width: 20px;\n  height: 20px;\n}\n.loader div:nth-child(6) {\n  border-width: 2px;\n  left: 0px;\n  top: -2px;\n  width: 25px;\n  height: 25px;\n}\n.loader div:nth-child(7) {\n  border-width: 2px;\n  left: 0px;\n  top: 4px;\n  width: 31px;\n  height: 31px;\n}\n@keyframes rotateAnim {\nfrom {\n    transform: rotate(360deg);\n}\nto {\n    transform: rotate(0deg);\n}\n}\n@-webkit-keyframes rotateAnim {\nfrom {\n    -webkit-transform: rotate(360deg);\n}\nto {\n    -webkit-transform: rotate(0deg);\n}\n}", ""]);
 
 // exports
 
@@ -28448,6 +28575,36 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss&":
+/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss& ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./UserStats.vue?vue&type=style&index=0&lang=scss& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Header/Header.vue?vue&type=style&index=0&lang=scss&":
 /*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Header/Header.vue?vue&type=style&index=0&lang=scss& ***!
@@ -29427,7 +29584,44 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "game-wrapper" }, [
-    _c("div", { staticClass: "game-header" }),
+    _c(
+      "div",
+      { staticClass: "game-header" },
+      [
+        _c("user-stats", {
+          attrs: {
+            user: _vm.user.user,
+            "is-on-turn": _vm.playerTurn,
+            "player-cards": _vm.myCards.length,
+            "new-class": "my-stats"
+          }
+        }),
+        _vm._v(" "),
+        _c("div", { staticClass: "game-stats" }, [
+          _c("div", { staticClass: "remaining" }, [
+            _c("span", { staticClass: "text" }, [_vm._v("Remaining")]),
+            _vm._v(" "),
+            _c("span", { staticClass: "number" }, [
+              _vm._v(_vm._s(_vm.calculateRemainingPairs))
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "stopwatch" }, [
+            _vm._v("\n          " + _vm._s(_vm.stopwatch) + "\n        ")
+          ])
+        ]),
+        _vm._v(" "),
+        _c("user-stats", {
+          attrs: {
+            user: _vm.getOpponentData,
+            "is-on-turn": !_vm.playerTurn,
+            "player-cards": _vm.opponentCards.length,
+            "new-class": "opponent-stats"
+          }
+        })
+      ],
+      1
+    ),
     _vm._v(" "),
     _c("div", { staticClass: "game-body" }, [
       _c(
@@ -29518,10 +29712,83 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [
-    _c("span", [_vm._v("Logged Users: " + _vm._s(_vm.getOnlineUsers.length))]),
+  return _c("div", { staticClass: "lobby-wrapper" }, [
+    _c("div", { staticClass: "lobby-top" }, [
+      _c("div", [
+        _vm._v("Active: "),
+        _c("span", [_vm._v(_vm._s(_vm.getOnlineUsers.length))])
+      ]),
+      _vm._v(" "),
+      _c("div", [
+        _vm._v("Waiting for match: "),
+        _c("span", [_vm._v(_vm._s(_vm.lobbyUsers.length))])
+      ])
+    ]),
     _vm._v(" "),
-    _c("span", [_vm._v("Lobby Users: " + _vm._s(_vm.lobbyUsers.length))])
+    _c(
+      "div",
+      { staticClass: "lobby-bot" },
+      [
+        _c("p", [_vm._v("Looking for game...")]),
+        _vm._v(" "),
+        _c("loader", { attrs: { size: "lobby", globalLoader: true } })
+      ],
+      1
+    )
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Game/UserStats.vue?vue&type=template&id=798f9dbc&":
+/*!*****************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Game/UserStats.vue?vue&type=template&id=798f9dbc& ***!
+  \*****************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "user-stats-wrapper", class: _vm.newClass }, [
+    _vm.user !== undefined
+      ? _c("div", { staticClass: "player-stats" }, [
+          _c("div", { staticClass: "player" }, [
+            _c("p", [_vm._v("User:")]),
+            _c("span", [_vm._v(_vm._s(_vm.user.name))])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "stats" }, [
+            _c("p", [_vm._v("Collected:")]),
+            _vm._v(" "),
+            _c("span", [_vm._v(_vm._s(_vm.playerCards))])
+          ])
+        ])
+      : _c("div", { staticClass: "waiting" }, [
+          _c("p", [_vm._v("Waiting for player...")])
+        ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "is-player-turn" }, [
+      _vm.isOnTurn && _vm.user !== undefined
+        ? _c("span", { staticClass: "player-turn" }, [
+            _c("img", {
+              attrs: {
+                src: __webpack_require__(/*! ../../../../public/img/brain.png */ "./public/img/brain.png"),
+                alt: "YOUR TURN"
+              }
+            })
+          ])
+        : _vm._e()
+    ])
   ])
 }
 var staticRenderFns = []
@@ -29591,7 +29858,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _vm.globalLoader
-    ? _c("div", { staticClass: "global-overlay" }, [_vm._m(0)])
+    ? _c("div", { staticClass: "global-overlay", class: _vm.size }, [_vm._m(0)])
     : _c("div", { staticClass: "overlay-loader" }, [_vm._m(1)])
 }
 var staticRenderFns = [
@@ -49254,6 +49521,93 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Lobby_vue_vue_type_template_id_20f57764___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Lobby_vue_vue_type_template_id_20f57764___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/Components/Game/UserStats.vue":
+/*!****************************************************!*\
+  !*** ./resources/js/Components/Game/UserStats.vue ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _UserStats_vue_vue_type_template_id_798f9dbc___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./UserStats.vue?vue&type=template&id=798f9dbc& */ "./resources/js/Components/Game/UserStats.vue?vue&type=template&id=798f9dbc&");
+/* harmony import */ var _UserStats_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./UserStats.vue?vue&type=script&lang=js& */ "./resources/js/Components/Game/UserStats.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _UserStats_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./UserStats.vue?vue&type=style&index=0&lang=scss& */ "./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _UserStats_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _UserStats_vue_vue_type_template_id_798f9dbc___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _UserStats_vue_vue_type_template_id_798f9dbc___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/Components/Game/UserStats.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/Components/Game/UserStats.vue?vue&type=script&lang=js&":
+/*!*****************************************************************************!*\
+  !*** ./resources/js/Components/Game/UserStats.vue?vue&type=script&lang=js& ***!
+  \*****************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./UserStats.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Game/UserStats.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss&":
+/*!**************************************************************************************!*\
+  !*** ./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss& ***!
+  \**************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./UserStats.vue?vue&type=style&index=0&lang=scss& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Game/UserStats.vue?vue&type=style&index=0&lang=scss&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0___default.a); 
+
+/***/ }),
+
+/***/ "./resources/js/Components/Game/UserStats.vue?vue&type=template&id=798f9dbc&":
+/*!***********************************************************************************!*\
+  !*** ./resources/js/Components/Game/UserStats.vue?vue&type=template&id=798f9dbc& ***!
+  \***********************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_template_id_798f9dbc___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./UserStats.vue?vue&type=template&id=798f9dbc& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Game/UserStats.vue?vue&type=template&id=798f9dbc&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_template_id_798f9dbc___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_UserStats_vue_vue_type_template_id_798f9dbc___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

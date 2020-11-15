@@ -1,7 +1,13 @@
 <template>
-  <div>
-    <span>Logged Users: {{ getOnlineUsers.length }}</span>
-    <span>Lobby Users: {{ lobbyUsers.length }}</span>
+  <div class="lobby-wrapper">
+    <div class="lobby-top">
+      <div>Active: <span>{{ getOnlineUsers.length }}</span></div>
+      <div>Waiting for match: <span>{{ lobbyUsers.length }}</span></div>
+    </div>
+    <div class="lobby-bot">
+      <p>Looking for game...</p>
+      <loader size="lobby" :globalLoader="true"></loader>
+    </div>
 <!--    <ul v-if="getOnlineUsers.length > 0">-->
 <!--      <li  v-for="(value, key) in getOnlineUsers">{{key}}. {{value.user.name}}</li>-->
 <!--    </ul>-->
@@ -66,14 +72,14 @@
 
       Echo.channel('generate-game-channel')
         .listen('.generate', (data) => {
-          if(data.roomPlayersIds.includes(this.user.user.id)) {
+          if(data.roomPlayersIds.includes(this.user.user.id) && this.lobbyUsers.length > 1) {
             this.$router.push('/game/' + data.roomId)
           }
         })
 
       setTimeout(() => {
         this.generateGame();
-      }, 500);
+      }, 1000);
     },
     destroyed() {
       Echo.leave('lobby');

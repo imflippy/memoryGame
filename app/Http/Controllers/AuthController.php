@@ -43,8 +43,10 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $update = auth()->user()->updates()->save(new Update())->load('user');
+        $user = auth()->user()->only(['id', 'email', 'name']);
+
         $userInfoSendToSocket = new \stdClass();
-        $userInfoSendToSocket->user = $update->user;
+        $userInfoSendToSocket->user = $user;
         $userInfoSendToSocket->user_id = $update->user_id;
 
         broadcast(new OnlineUsers($userInfoSendToSocket))->toOthers();
@@ -126,14 +128,14 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL(),
-            'user' => auth()->user()
+            'user' => auth()->user()->only(['id', 'email', 'name'])
         ]);
     }
 
   public function list()
   {
-    $date = date("Y-m-d H:i:s", strtotime('-1 hours'));
+    $date = date("Y-m-d H:i:s", strtotime('-3 hours'));
 
-    return response()->json(Update::select('user_id')->where('created_at', '>', $date)->with('user')->orderBy('id', 'asc')->get());
+    return response()->json(Update::select('user_id')->where('created_at', '>', $date)->with('user:id,email,name')->orderBy('id', 'asc')->get());
   }
 }

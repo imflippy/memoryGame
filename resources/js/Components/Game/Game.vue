@@ -1,6 +1,26 @@
 <template>
   <div class="game-wrapper">
-      <div class="game-header"></div>
+      <div class="game-header">
+        <user-stats
+          :user="user.user"
+          :is-on-turn="playerTurn"
+          :player-cards="myCards.length"
+          new-class="my-stats"></user-stats>
+        <div class="game-stats">
+          <div class="remaining">
+            <span class="text">Remaining</span>
+            <span class="number">{{ calculateRemainingPairs }}</span>
+          </div>
+          <div class="stopwatch">
+            {{ stopwatch }}
+          </div>
+        </div>
+        <user-stats
+          :user="getOpponentData"
+          :is-on-turn="!playerTurn"
+          :player-cards="opponentCards.length"
+          new-class="opponent-stats"></user-stats>
+      </div>
       <div class="game-body">
         <div class="all-cards">
           <game-card
@@ -23,10 +43,12 @@
     import {mapGetters} from "vuex";
 
     import GameCard from "./GameCard";
+    import UserStats from "./UserStats";
     export default {
       name: "Game",
       components: {
-        GameCard
+        GameCard,
+        UserStats
       },
       data() {
         return {
@@ -37,11 +59,36 @@
           currentRoundCards: [],
           myCards : [],
           opponentCards: [],
-          playerTurn: false //stavi false
+          playerTurn: false, //stavi false,
+          stopwatchTime: 0
         }
       },
       computed: {
-        ...mapGetters(['user', 'getOnlineUsers'])
+        ...mapGetters(['user', 'getOnlineUsers']),
+        calculateRemainingPairs() {
+          return (this.allCards.length / 2)- this.myCards.length - this.opponentCards.length;
+        },
+        stopwatch() {
+          let mins = Math.floor(this.stopwatchTime / 10 / 60);
+          let secs = Math.floor(this.stopwatchTime / 10 - mins * 60);
+          // let tenths = Math.floor(this.stopwatchTime % 10);
+
+          if(mins <= 9){
+            mins = "0" + mins;
+          }
+          if(secs <= 9){
+            secs = "0" + secs;
+          }
+          // if(tenths <= 9){
+          //   tenths = "0" + tenths;
+          // }
+          // return mins + ":" + secs + ":" + tenths;
+          return mins + ":" + secs;
+        },
+        getOpponentData() {
+          let opponent = this.gameUsers.filter(u => u.id !== this.user.user.id)[0];
+          return opponent;
+        }
       },
       methods: {
         getCards() {
@@ -55,24 +102,6 @@
             .catch((err) => {
               console.log('ERROR WITH CAREDS', err)
             })
-        },
-        shuffle(array) {
-          var currentIndex = array.length, temporaryValue, randomIndex;
-
-          // While there remain elements to shuffle...
-          while (0 !== currentIndex) {
-
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
-
-            // And swap it with the current element.
-            temporaryValue = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temporaryValue;
-          }
-
-          return array;
         },
         listenToUsersActivity() {
           Echo.join('game-info-users.' + this.getGameId)
@@ -160,6 +189,15 @@
 
         this.getCards(); //dohvatam inicijalno sve karte
 
+      },
+      watch: {
+        gameUsers(newVal) {
+          if(newVal.length === 2) {
+            setInterval(() => {
+              this.stopwatchTime = this.stopwatchTime + 10;
+            }, 1000);
+          }
+        }
       },
       beforeDestroy() {
         Echo.leave('game-info-users.' + this.getGameId);

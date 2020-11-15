@@ -1,5 +1,5 @@
 <template>
-  <div v-if="globalLoader" class="global-overlay">
+  <div v-if="globalLoader" class="global-overlay" :class="size">
     <div class="overlay-loader">
       <div class="loader">
         <div></div>
@@ -32,6 +32,9 @@
         globalLoader: {
           type: Boolean,
           default: false
+        },
+        size: {
+          default: ''
         }
       }
     }
