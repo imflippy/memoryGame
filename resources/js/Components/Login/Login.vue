@@ -74,7 +74,6 @@
             await this.$store.dispatch('login', loginForm);
 
             if(this.getLoginMessage === '') {
-              await this.$store.dispatch('getOnlineUsersFromDB');
               await this.$router.push('/')
             }
             this.loader = false;

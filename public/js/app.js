@@ -2860,7 +2860,7 @@ var touchMap = new WeakMap();
                 _this.$v.$touch();
 
                 if (_this.$v.$invalid) {
-                  _context.next = 13;
+                  _context.next = 11;
                   break;
                 }
 
@@ -2874,35 +2874,31 @@ var touchMap = new WeakMap();
 
               case 7:
                 if (!(_this.getLoginMessage === '')) {
-                  _context.next = 12;
+                  _context.next = 10;
                   break;
                 }
 
                 _context.next = 10;
-                return _this.$store.dispatch('getOnlineUsersFromDB');
-
-              case 10:
-                _context.next = 12;
                 return _this.$router.push('/');
 
-              case 12:
+              case 10:
                 _this.loader = false;
 
-              case 13:
-                _context.next = 18;
+              case 11:
+                _context.next = 16;
                 break;
 
-              case 15:
-                _context.prev = 15;
+              case 13:
+                _context.prev = 13;
                 _context.t0 = _context["catch"](0);
                 console.log(_context.t0);
 
-              case 18:
+              case 16:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[0, 15]]);
+        }, _callee, null, [[0, 13]]);
       }))();
     },
     delayTouch: function delayTouch($v) {
