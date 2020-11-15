@@ -1,0 +1,63 @@
+.game-card-wrapper {
+  height: 150px;
+  width: 150px;
+  position: relative;
+  .game-card {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    cursor: pointer;
+    .front {
+      background: url("../../../../public/img/brain.png");
+      background-position: center;
+      background-size: 45%;
+      background-repeat: no-repeat;
+    }
+    div {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 6px;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font: 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-smoothing: antialiased;
+      color: #47525D;
+    }
+    .back {
+      transform: rotateY(180deg);
+    }
+    &.opened {
+      transform: rotateY(180deg);
+    }
+
+    &.my-card, &.opponent-card {
+      animation-name: disappearCard;
+      animation-duration: 1500ms;
+      animation-fill-mode: forwards;
+    }
+  }
+}
+@keyframes disappearCard{
+  0%{
+    opacity: 1;
+    transform: rotateY(90deg);
+  }
+  50%{
+    opacity: 0.5;
+    transform: rotateY(0deg);
+  }
+  100%{
+    display: none;
+    opacity: 0;
+    transform: rotateY(90deg);
+  }
+}
+

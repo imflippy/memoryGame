@@ -30,11 +30,11 @@ Broadcast::channel('lobby', function ($user) {
     }
 });
 
-//Broadcast::channel('game.{gameId}', function ($game, $gameId) {
-//  if(auth()->check()) {
-//    return $game;
-//  }
-//});
+Broadcast::channel('game.{gameId}', function ($game, $gameId) {
+  if(auth()->check()) {
+    return $game;
+  }
+});
 
 
 Broadcast::channel('game-info-users.{gameId}', function ($user, $gameId) {

@@ -3,7 +3,16 @@
       <div class="game-header"></div>
       <div class="game-body">
         <div class="all-cards">
-          <div class="game-card" v-for="(card, cId) in allCards" :key="cId">{{ card.id }}</div>
+          <game-card
+            v-for="(card, cId) in allCards"
+            :key="cId"
+            :card="card"
+            :positionId="cId"
+            :is-opened="currentRoundCardsKeys.includes(cId)"
+            :is-my-card="myCards.includes(card.id)"
+            :is-oppoent-card="opponentCards.includes(card.id)"
+            @openCard="openCard"
+            ></game-card>
         </div>
       </div>
   </div>
@@ -12,13 +21,23 @@
 <script>
 
     import {mapGetters} from "vuex";
+
+    import GameCard from "./GameCard";
     export default {
       name: "Game",
+      components: {
+        GameCard
+      },
       data() {
         return {
           gameUsers: [],
           getGameId: 0,
-          allCards: []
+          allCards: [],
+          currentRoundCardsKeys: [],
+          currentRoundCards: [],
+          myCards : [],
+          opponentCards: [],
+          playerTurn: false //stavi false
         }
       },
       computed: {
@@ -66,21 +85,70 @@
               }
             })
             .joining((user) => {
-              // console.log("JOININGJOININGJOININGJOININGJOININGGAME", user);
               if(this.gameUsers.length === 1) {
                 this.gameUsers.push(user);
+                this.playerTurn = true;
               }
             })
             .leaving((user) => {
-              // console.log('LEAVINGLEAVINGLEAVINGLEAVINGLEAVINGGAME', user);
               if(this.gameUsers.length === 2) {
                 console.log("POBEDIK JE " + this.user.user.name);
                 //  TODO: Ovde treba uraditi redirect od trenutng usera na rutu gde je on pobedio mec - tek kada se uradi
               }
             })
             .listen('.GenerateCards', (res) => {
-              console.log("LISTEN", res);
+              // console.log("LISTEN", res);
               this.allCards = res.cards;
+            })
+            .listen('GameEvent', (res) => {
+              let newCurrRoundCardKeys = res.data.currentRoundCardsKeys;
+              let newCurrRoundCard = res.data.currentRoundCards;
+              let sameCardId = res.data.sameCardId;
+
+              this.currentRoundCardsKeys = newCurrRoundCardKeys;
+              this.currentRoundCards = newCurrRoundCard;
+
+              if(newCurrRoundCardKeys.length === 2) {
+                setTimeout(() => {
+                  if(sameCardId !== 0) {
+                    this.playerTurn ? this.myCards.push(sameCardId) : this.opponentCards.push(sameCardId);
+                  }
+                }, 500)
+
+                setTimeout(() => {
+                  this.currentRoundCardsKeys = [];
+                  this.currentRoundCards = [];
+
+                  if(res.data.changeUser) {
+                    this.playerTurn = !this.playerTurn;
+                  }
+                }, 2000);
+              }
+            })
+        },
+        openCard(cardDetails) {
+          if(this.currentRoundCardsKeys.length < 2 && this.playerTurn) {
+            let currentGame = {
+              currentRoundCardsKeys: this.currentRoundCardsKeys,
+              currentRoundCards: this.currentRoundCards
+            }
+            let req = {
+              gameId: this.getGameId,
+              currentGame: currentGame,
+              cardDetails: cardDetails
+            }
+
+            this.callOpenCard(req);
+          }
+          // this.currentRoundCardsKeys.push(positionId);
+        },
+        callOpenCard(req) {
+          axios.post('/open-card', req)
+            .then((res) => {
+              console.log("POST", res.data);
+            })
+            .catch((err) => {
+              console.log('ERROR CARd playYYY', err)
             })
         }
       },
@@ -89,13 +157,8 @@
         this.getGameId = this.$route.params.id;
 
         this.listenToUsersActivity();
-        // Echo.private(`game.${this.getGameId}`)
-        //   .listen('.game-info', (payload) => {
-        //     console.log(data, "GAME DATA");
-        //   });
-         this.getCards(); //dohvatam inicijalno sve karte
 
-
+        this.getCards(); //dohvatam inicijalno sve karte
 
       },
       beforeDestroy() {

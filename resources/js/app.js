@@ -93,7 +93,8 @@ const app =  new Vue({
                     this.$router.push('/');
                 }
                 if(!this.$router.currentRoute.path.includes('login')) {
-                  this.$router.push('/login')
+                  // this.$router.push('/login')
+                  console.log("500 error");
                 }
                 return Promise.reject(error)
             }
