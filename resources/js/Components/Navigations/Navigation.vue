@@ -31,7 +31,9 @@
         methods: {
             async logoutUser () {
                 await this.$store.dispatch('logout');
-                await this.$router.push('/');
+                if(this.$router.currentRoute.path !== '/') {
+                  await this.$router.push('/');
+                }
             }
         }
     }

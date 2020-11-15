@@ -11,7 +11,6 @@
 
   import {mapGetters, mapState} from "vuex";
   import Loader from './Components/Helpers/Loader';
-  // import Echo from "laravel-echo";
     export default {
       components: {
         'loader': Loader
@@ -32,31 +31,41 @@
           if(token !== 'token') {
             Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer ' + token;
           }
+        },
+        authChannel() {
+          Echo.join('auth')
+            .here((users) => {
+              console.log("HEREHERE AUTH C", users);
+              this.$store.dispatch('setOnlineUsersSocket', users);
+            })
+            .joining((user) => {
+              console.log("JOIN AUTH CH", user);
+              this.$store.dispatch('addUserFromSocket', user);
+            })
+            .leaving((user) => {
+              console.log('LEAVE AUTH C', user);
+              this.$store.dispatch('removeUserFromSocket', user.id);
+            })
         }
       },
       mounted() {
         if(this.user)  {
-          this.$store.dispatch('getOnlineUsersFromDB');
+          this.authChannel();
           this.listenForBroadcast();
         }
-        Echo.channel('online-users')
-          .listen('.online', (data) => {
-            console.log("Usao je neko na kalan", data.newOnlineUser)
-            this.$store.dispatch('addUserFromSocket', data.newOnlineUser);
-          })
-
-        Echo.channel('logout')
-          .listen('.offline', (data) => {
-            console.log('Neko je otisao, leaved ..')
-            this.$store.dispatch('removeUserFromSocket', data.idUser);
-          })
       },
       watch: {
         user(val) {
           if(val) {
             this.listenForBroadcast();
+            this.authChannel();
+          } else {
+            Echo.leave('auth');
           }
         }
+      },
+      beforeDestroy() {
+        Echo.leave('auth');
       }
     }
 </script>

@@ -59,13 +59,4 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
-  /**
-   * Update model relationship
-   *
-   * @return \Illuminate\Database\Eloquent\Relations\HasMany
-   */
-  public function updates()
-  {
-    return $this->hasMany(Update::class);
-  }
 }

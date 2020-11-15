@@ -1938,7 +1938,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 
- // import Echo from "laravel-echo";
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
@@ -1959,33 +1958,43 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       if (token !== 'token') {
         Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer ' + token;
       }
+    },
+    authChannel: function authChannel() {
+      var _this = this;
+
+      Echo.join('auth').here(function (users) {
+        console.log("HEREHERE AUTH C", users);
+
+        _this.$store.dispatch('setOnlineUsersSocket', users);
+      }).joining(function (user) {
+        console.log("JOIN AUTH CH", user);
+
+        _this.$store.dispatch('addUserFromSocket', user);
+      }).leaving(function (user) {
+        console.log('LEAVE AUTH C', user);
+
+        _this.$store.dispatch('removeUserFromSocket', user.id);
+      });
     }
   },
   mounted: function mounted() {
-    var _this = this;
-
     if (this.user) {
-      this.$store.dispatch('getOnlineUsersFromDB');
+      this.authChannel();
       this.listenForBroadcast();
     }
-
-    Echo.channel('online-users').listen('.online', function (data) {
-      console.log("Usao je neko na kalan", data.newOnlineUser);
-
-      _this.$store.dispatch('addUserFromSocket', data.newOnlineUser);
-    });
-    Echo.channel('logout').listen('.offline', function (data) {
-      console.log('Neko je otisao, leaved ..');
-
-      _this.$store.dispatch('removeUserFromSocket', data.idUser);
-    });
   },
   watch: {
     user: function user(val) {
       if (val) {
         this.listenForBroadcast();
+        this.authChannel();
+      } else {
+        Echo.leave('auth');
       }
     }
+  },
+  beforeDestroy: function beforeDestroy() {
+    Echo.leave('auth');
   }
 });
 
@@ -3017,10 +3026,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return _this.$store.dispatch('logout');
 
               case 2:
-                _context.next = 4;
+                if (!(_this.$router.currentRoute.path !== '/')) {
+                  _context.next = 5;
+                  break;
+                }
+
+                _context.next = 5;
                 return _this.$router.push('/');
 
-              case 4:
+              case 5:
               case "end":
                 return _context.stop();
             }
@@ -50563,8 +50577,8 @@ var mutations = {
     state.user = userData;
     axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common.Authorization = "Bearer ".concat(userData.access_token);
   },
-  clearUserData: function clearUserData(state, userId) {
-    state.user = null; // state.onlineUsers = state.onlineUsers.filter(u => u.userId !== userId);
+  clearUserData: function clearUserData(state) {
+    state.user = null;
   },
   setLoginMessage: function setLoginMessage(state, message) {
     state.loginMessage = message;
@@ -50580,7 +50594,7 @@ var mutations = {
   },
   removeOnlineUser: function removeOnlineUser(state, userId) {
     var userToDelete = state.onlineUsers.find(function (u) {
-      return u.user_id === userId;
+      return u.id === userId;
     });
     var indexOfUser = state.onlineUsers.indexOf(userToDelete);
     if (indexOfUser !== -1) state.onlineUsers.splice(indexOfUser, 1); // state.onlineUsers = state.onlineUsers.filter(u => u.user_id !== userId);
@@ -50619,39 +50633,31 @@ var actions = {
     var commit = _ref5.commit;
     commit('setUserData', userData);
   },
-  logout: function logout(_ref6) {
-    var commit = _ref6.commit,
-        state = _ref6.state;
-    var userId = state.user.user.id;
-    commit('clearUserData', userId);
-    axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/auth/logout', {
-      userId: userId
-    }).then(function (res) {
+  logout: function logout() {
+    axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/auth/logout').then(function (res) {
       console.log(res.data.message);
     })["catch"](function (e) {
       console.log('Error with logout: ', e);
     });
   },
-  setLoginMessage: function setLoginMessage(_ref7, message) {
-    var commit = _ref7.commit;
+  setLoginMessage: function setLoginMessage(_ref6, message) {
+    var commit = _ref6.commit;
     commit('setLoginMessage', message);
   },
-  setRegisterMessage: function setRegisterMessage(_ref8, message) {
-    var commit = _ref8.commit;
+  setRegisterMessage: function setRegisterMessage(_ref7, message) {
+    var commit = _ref7.commit;
     commit('setRegisterMessage', message);
   },
-  getOnlineUsersFromDB: function getOnlineUsersFromDB(_ref9) {
-    var commit = _ref9.commit;
-    axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/auth/online').then(function (res) {
-      commit('setOnlineUsers', res.data);
-    });
+  setOnlineUsersSocket: function setOnlineUsersSocket(_ref8, users) {
+    var commit = _ref8.commit;
+    commit('setOnlineUsers', users);
   },
-  addUserFromSocket: function addUserFromSocket(_ref10, user) {
-    var commit = _ref10.commit;
+  addUserFromSocket: function addUserFromSocket(_ref9, user) {
+    var commit = _ref9.commit;
     commit('addOnlineUser', user);
   },
-  removeUserFromSocket: function removeUserFromSocket(_ref11, userId) {
-    var commit = _ref11.commit;
+  removeUserFromSocket: function removeUserFromSocket(_ref10, userId) {
+    var commit = _ref10.commit;
     commit('removeOnlineUser', userId);
   }
 };

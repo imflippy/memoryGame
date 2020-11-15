@@ -22,11 +22,16 @@ use Illuminate\Support\Facades\Broadcast;
 //});
 
 
+Broadcast::channel('auth', function ($user) {
+  if(auth()->check()) {
+    return auth()->user()->only(['id', 'email', 'name']);
+  }
+});
 
 
 Broadcast::channel('lobby', function ($user) {
     if(auth()->check()) {
-      return $user;
+      return auth()->user()->only(['id', 'email', 'name']);
     }
 });
 
@@ -39,6 +44,6 @@ Broadcast::channel('game.{gameId}', function ($game, $gameId) {
 
 Broadcast::channel('game-info-users.{gameId}', function ($user, $gameId) {
   if(auth()->check()) {
-    return $user;
+    return auth()->user()->only(['id', 'email', 'name']);
   }
 });

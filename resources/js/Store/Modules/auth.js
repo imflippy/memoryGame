@@ -20,9 +20,8 @@ const mutations = {
       state.user = userData;
       axios.defaults.headers.common.Authorization = `Bearer ${userData.access_token}`
   },
-  clearUserData (state, userId) {
+  clearUserData (state) {
     state.user = null;
-    // state.onlineUsers = state.onlineUsers.filter(u => u.userId !== userId);
   },
   setLoginMessage(state, message) {
     state.loginMessage = message;
@@ -37,7 +36,7 @@ const mutations = {
     state.onlineUsers.push(onlineUser);
   },
   removeOnlineUser(state, userId) {
-    let userToDelete = state.onlineUsers.find(u => u.user_id === userId);
+    let userToDelete = state.onlineUsers.find(u => u.id === userId);
     let indexOfUser = state.onlineUsers.indexOf(userToDelete);
 
     if(indexOfUser !== -1) state.onlineUsers.splice(indexOfUser, 1);
@@ -81,10 +80,8 @@ const actions = {
   setUserInfo({commit}, userData) {
       commit('setUserData', userData);
   },
-  logout ({ commit, state }) {
-    let userId = state.user.user.id;
-    commit('clearUserData', userId);
-    axios.post('/auth/logout', { userId: userId }).then(res => {
+  logout () {
+    axios.post('/auth/logout').then(res => {
       console.log(res.data.message);
     }).catch(e => {
       console.log('Error with logout: ', e);
@@ -96,10 +93,8 @@ const actions = {
   setRegisterMessage({commit}, message) {
     commit('setRegisterMessage', message);
   },
-  getOnlineUsersFromDB({commit}) {
-    axios.get('/auth/online').then(res => {
-      commit('setOnlineUsers', res.data);
-    });
+  setOnlineUsersSocket({commit}, users) {
+    commit('setOnlineUsers', users);
   },
   addUserFromSocket({commit}, user) {
     commit('addOnlineUser', user);
