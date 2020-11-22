@@ -5,8 +5,8 @@
       <div>Waiting for match: <span>{{ lobbyUsers.length }}</span></div>
     </div>
     <div class="lobby-bot">
-      <p>Looking for game...</p>
       <loader size="lobby" :globalLoader="true"></loader>
+      <p>Looking for game...</p>
     </div>
 <!--    <ul v-if="getOnlineUsers.length > 0">-->
 <!--      <li  v-for="(value, key) in getOnlineUsers">{{key}}. {{value.user.name}}</li>-->
@@ -40,9 +40,9 @@
           console.log("Vise ih je od 1")
           axios.post('/auth/generate-game', {players: this.lobbyUsers}).
           then(() => {
-            console.log("USPEO POST")
+            // console.log("USPEO POST")
           }).catch((ex) => {
-            console.log("NIJE USPEO", ex)
+            // console.log("NIJE USPEO", ex)
           })
         }
       },
@@ -58,15 +58,15 @@
     mounted() {
       Echo.join('lobby')
         .here((users) => {
-          console.log("HEREHEREHEREHEREHERE", users);
+          // console.log("HEREHEREHEREHEREHERE", users);
           this.lobbyUsers = users;
         })
         .joining((user) => {
-          console.log("JOININGJOININGJOININGJOININGJOINING", user);
+          // console.log("JOININGJOININGJOININGJOININGJOINING", user);
           this.lobbyUsers.push(user);
         })
         .leaving((user) => {
-          console.log('LEAVINGLEAVINGLEAVINGLEAVINGLEAVING', user);
+          // console.log('LEAVINGLEAVINGLEAVINGLEAVINGLEAVING', user);
           this.lobbyUsers.splice(this.lobbyUsers.indexOf(user), 1);
         })
 

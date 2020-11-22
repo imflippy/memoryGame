@@ -7,7 +7,7 @@ import store from '@/js/Store/index.js'
 import axios from 'axios'
 //import VueWindowSize from 'vue-window-size'; //ovo treba obrisati
 import Vuelidate from 'vuelidate'
-
+import VueToastr from "vue-toastr";
 
 import FrontLayout from '@/js/Layouts/Front.vue';
 import AdminLayout from '@/js/Layouts/Admin.vue';
@@ -29,6 +29,7 @@ Vue.component('Front-layout', FrontLayout)
 Vue.component('Admin-layout', AdminLayout)
 
 Vue.use(Vuelidate);
+Vue.use(VueToastr);
 // Vue.use(VueWindowSize);
 
 

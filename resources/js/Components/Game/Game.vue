@@ -8,8 +8,8 @@
           new-class="my-stats"></user-stats>
         <div class="game-stats">
           <div class="remaining">
-            <span class="text">Remaining</span>
-            <span class="number">{{ calculateRemainingPairs }}</span>
+            <span class="text" v-if="getOpponentData !== undefined">Remaining</span>
+            <span class="number" v-if="getOpponentData !== undefined">{{ calculateRemainingPairs }}</span>
           </div>
           <div class="stopwatch">
             {{ stopwatch }}
@@ -22,7 +22,7 @@
           new-class="opponent-stats"></user-stats>
       </div>
       <div class="game-body">
-        <div class="all-cards">
+        <div class="all-cards" v-if="getOpponentData !== undefined">
           <game-card
             v-for="(card, cId) in allCards"
             :key="cId"
@@ -34,6 +34,9 @@
             @openCard="openCard"
             ></game-card>
         </div>
+        <div v-else class="game-loader">
+          <loader size="lobby" :globalLoader="true"></loader>
+        </div>
       </div>
   </div>
 </template>
@@ -44,11 +47,15 @@
 
     import GameCard from "./GameCard";
     import UserStats from "./UserStats";
+    import Loader from "../Helpers/Loader";
+
+
     export default {
       name: "Game",
       components: {
         GameCard,
-        UserStats
+        UserStats,
+        Loader
       },
       data() {
         return {
@@ -86,8 +93,7 @@
           return mins + ":" + secs;
         },
         getOpponentData() {
-          let opponent = this.gameUsers.filter(u => u.id !== this.user.user.id)[0];
-          return opponent;
+          return this.gameUsers.filter(u => u.id !== this.user.user.id)[0];
         }
       },
       methods: {
@@ -100,16 +106,18 @@
               this.allCards = res.data;
             })
             .catch((err) => {
-              console.log('ERROR WITH CAREDS', err)
+              // console.log('ERROR WITH CAREDS', err)
             })
         },
         listenToUsersActivity() {
           Echo.join('game-info-users.' + this.getGameId)
             .here((users) => {
-              console.log("HEREHEREHEREHEREHEREGAME", users);
+              // console.log("HEREHEREHEREHEREHEREGAME", users);
               if(users.length > 2) {
-                console.log("NIJE TVOJ MEC")
+                // console.log("NIJE TVOJ MEC")
+                this.$router.push('/lobby');
               } else {
+                this.getCards(); //dohvatam inicijalno sve karte
                 this.gameUsers = users;
               }
             })
@@ -120,9 +128,13 @@
               }
             })
             .leaving((user) => {
-              if(this.gameUsers.length === 2) {
-                console.log("POBEDIK JE " + this.user.user.name);
-                //  TODO: Ovde treba uraditi redirect od trenutng usera na rutu gde je on pobedio mec - tek kada se uradi
+              if(this.gameUsers.length === 2 && this.calculateRemainingPairs !== 0 && user.id === this.getOpponentData.id ) {
+                // console.log("POBEDIK JE " + this.user.user.name);
+
+                let idUser = this.user.user.id;
+                this.postGameStatus(idUser);
+                this.$store.dispatch('setGameStatus', 'opponent-left');
+                this.$router.push('/');
               }
             })
             .listen('.GenerateCards', (res) => {
@@ -171,24 +183,33 @@
           }
           // this.currentRoundCardsKeys.push(positionId);
         },
-        callOpenCard(req) {
-          axios.post('/open-card', req)
+        callOpenCard(paylaod) {
+          axios.post('/open-card', paylaod)
             .then((res) => {
-              console.log("POST", res.data);
+              // console.log("POST", res.data);
             })
             .catch((err) => {
-              console.log('ERROR CARd playYYY', err)
+              // console.log('ERROR CARd playYYY', err)
+            })
+        },
+        postGameStatus(idUser) {
+          let payload = {
+            idUser: idUser
+          }
+          axios.post('/auth/win-game', payload)
+            .then((res) => {
+              // console.log('SUCCESS - postGameStatus');
+            })
+            .catch((err) => {
+              // console.log("ERROR - postGameStatus", err)
             })
         }
       },
       mounted() {
+        this.$store.dispatch('setGameValue', true);
         // setujem gameId da bih mogao u beforeDestroy da dohvatim Id i leave socket
         this.getGameId = this.$route.params.id;
-
         this.listenToUsersActivity();
-
-        this.getCards(); //dohvatam inicijalno sve karte
-
       },
       watch: {
         gameUsers(newVal) {
@@ -197,9 +218,32 @@
               this.stopwatchTime = this.stopwatchTime + 10;
             }, 1000);
           }
+          //Ako korisnik ceka 5 sekundi, a protivnik nije usao u mec, vraca se u lobby
+          setTimeout(() => {
+            if(newVal.length === 1) {
+              this.$router.push('/lobby');
+            }
+          }, 5000)
+        },
+        calculateRemainingPairs(newVal) {
+          if(newVal === 0) {
+            setTimeout(() => {
+              if(this.myCards.length < this.opponentCards.length) {
+                this.$store.dispatch('setGameStatus', 'lose')
+              } else if(this.myCards.length > this.opponentCards.length) {
+                let idUser = this.user.user.id;
+                this.postGameStatus(idUser);
+                this.$store.dispatch('setGameStatus', 'win')
+              } else {
+                this.$store.dispatch('setGameStatus', 'draw')
+              }
+              this.$router.push('/');
+            }, 2000);
+          }
         }
       },
       beforeDestroy() {
+        this.$store.dispatch('setGameValue', false);
         Echo.leave('game-info-users.' + this.getGameId);
       }
     }

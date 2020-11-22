@@ -59,4 +59,8 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
+    public function Ranks() {
+      return $this->hasMany('App\Models\Ranks');
+    }
+
 }

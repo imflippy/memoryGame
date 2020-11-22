@@ -4,7 +4,8 @@ const state = {
   user: null,
   loginMessage: "",
   registerMessage: "",
-  onlineUsers: []
+  onlineUsers: [],
+  gameStatus: ''
 };
 
 const getters = {
@@ -12,7 +13,8 @@ const getters = {
   user: state => state.user,
   getLoginMessage: state => state.loginMessage,
   getRegisterMessage: state => state.registerMessage,
-  getOnlineUsers: state => state.onlineUsers
+  getOnlineUsers: state => state.onlineUsers,
+  getGameStatus: state => state.gameStatus
 };
 
 const mutations = {
@@ -40,8 +42,13 @@ const mutations = {
     let indexOfUser = state.onlineUsers.indexOf(userToDelete);
 
     if(indexOfUser !== -1) state.onlineUsers.splice(indexOfUser, 1);
-
     // state.onlineUsers = state.onlineUsers.filter(u => u.user_id !== userId);
+  },
+  setGameStatus(state, status) {
+    state.gameStatus = status;
+    setTimeout(() => {
+      state.gameStatus = '';
+    }, 5000)
 
   }
 };
@@ -101,6 +108,9 @@ const actions = {
   },
   removeUserFromSocket({commit}, userId) {
     commit('removeOnlineUser', userId);
+  },
+  setGameStatus({commit}, status) {
+    commit('setGameStatus', status);
   }
 };
 export default {

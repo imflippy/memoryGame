@@ -35,15 +35,15 @@
         authChannel() {
           Echo.join('auth')
             .here((users) => {
-              console.log("HEREHERE AUTH C", users);
+              // console.log("HEREHERE AUTH C", users);
               this.$store.dispatch('setOnlineUsersSocket', users);
             })
             .joining((user) => {
-              console.log("JOIN AUTH CH", user);
+              // console.log("JOIN AUTH CH", user);
               this.$store.dispatch('addUserFromSocket', user);
             })
             .leaving((user) => {
-              console.log('LEAVE AUTH C', user);
+              // console.log('LEAVE AUTH C', user);
               this.$store.dispatch('removeUserFromSocket', user.id);
             })
         }
@@ -60,6 +60,7 @@
             this.listenForBroadcast();
             this.authChannel();
           } else {
+            //Ako se korisnik odjavi da izadje sa kanala, Ovo je verovatno moglo u logout mutaciji uraditi, ali kada vec imam watcher why not here
             Echo.leave('auth');
           }
         }

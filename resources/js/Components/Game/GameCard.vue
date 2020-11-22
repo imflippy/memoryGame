@@ -6,8 +6,8 @@
           isMyCard ? 'my-card' : '',
           isOppoentCard ? 'opponent-card' : ''
           ]">
-      <div class="front" >{{card.id}}</div>
-      <div class="back">Yo, what up?</div>
+      <div class="front" ></div>
+      <div class="back" :style="{color: card.color}"><span class="card-name">{{card.card_name}}</span></div>
     </div>
   </div>
 </template>

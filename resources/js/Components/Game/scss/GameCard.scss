@@ -24,7 +24,7 @@
       height: 100%;
       backface-visibility: hidden;
       border-radius: 6px;
-      background: #fff;
+      //background: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -34,6 +34,11 @@
     }
     .back {
       transform: rotateY(180deg);
+      .card-name {
+        font-size: 42px;
+        font-weight: 700;
+        transform: rotate(-45deg);
+      }
     }
     &.opened {
       transform: rotateY(180deg);

@@ -28,6 +28,7 @@ Route::group([
   Route::get('/online', 'AuthController@list');
 
  Route::post('generate-game', 'GameController@generateGame');
+ Route::post('win-game', 'GameController@winGame');
 });
 
 
