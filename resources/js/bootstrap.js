@@ -30,6 +30,6 @@ window.Echo = new Echo({
     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     // auth: {
     //     headers: { 'Authorization': 'Bearer ' + token }},
-    // authEndpoint: '/api/auth/login',
+    // authEndpoint: '/api/auth/ping-user',
     forceTLS: false
 });

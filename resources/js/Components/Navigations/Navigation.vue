@@ -2,7 +2,7 @@
     <div id="nav">
         <router-link
           v-for="(nl, index) of navigationLinks"
-          v-if="isLogged === nl.auth"
+          v-if="isLogged === nl.auth || nl.auth === undefined"
           :key="index"
           :to="nl.href"
           class="nav-link">

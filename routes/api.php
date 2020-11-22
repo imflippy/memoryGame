@@ -25,6 +25,7 @@ Route::group([
   Route::post('logout', 'AuthController@logout');
   Route::post('refresh', 'AuthController@refresh');
   Route::get('user-profile', 'AuthController@userProfile');
+  Route::get('ping-user', 'AuthController@pingUser');
   Route::get('/online', 'AuthController@list');
 
  Route::post('generate-game', 'GameController@generateGame');

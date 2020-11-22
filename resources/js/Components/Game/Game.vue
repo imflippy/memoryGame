@@ -67,7 +67,8 @@
           myCards : [],
           opponentCards: [],
           playerTurn: false, //stavi false,
-          stopwatchTime: 0
+          stopwatchTime: 0,
+          isCardAvailable: true, // da bi se spamovanje requestova zaustavilo
         }
       },
       computed: {
@@ -168,7 +169,7 @@
             })
         },
         openCard(cardDetails) {
-          if(this.currentRoundCardsKeys.length < 2 && this.playerTurn) {
+          if(this.currentRoundCardsKeys.length < 2 && this.playerTurn && this.isCardAvailable) {
             let currentGame = {
               currentRoundCardsKeys: this.currentRoundCardsKeys,
               currentRoundCards: this.currentRoundCards
@@ -178,7 +179,7 @@
               currentGame: currentGame,
               cardDetails: cardDetails
             }
-
+            this.isCardAvailable = false;
             this.callOpenCard(req);
           }
           // this.currentRoundCardsKeys.push(positionId);
@@ -186,9 +187,11 @@
         callOpenCard(paylaod) {
           axios.post('/open-card', paylaod)
             .then((res) => {
+              this.isCardAvailable = true;
               // console.log("POST", res.data);
             })
             .catch((err) => {
+              this.isCardAvailable = true;
               // console.log('ERROR CARd playYYY', err)
             })
         },
@@ -206,6 +209,7 @@
         }
       },
       mounted() {
+        this.$store.dispatch('pingUser')
         this.$store.dispatch('setGameValue', true);
         // setujem gameId da bih mogao u beforeDestroy da dohvatim Id i leave socket
         this.getGameId = this.$route.params.id;

@@ -49,54 +49,20 @@ const app =  new Vue({
         if (userInfo) {
             this.$store.dispatch('setUserInfo', userInfo);
         }
-        //loader start
-      axios.interceptors.request.use(
-        config => {
-          if (config.showLoader) {
-            store.dispatch('loader/pending');
-          }
-          return config;
-        },
-        error => {
-          if (error.config.showLoader) {
-            store.dispatch('loader/done');
-          }
-          return Promise.reject(error);
-        }
-      );
-      axios.interceptors.response.use(
-        response => {
-          if (response.config.showLoader) {
-            store.dispatch('loader/done');
-          }
-
-          return response;
-        },
-        error => {
-          let response = error.response;
-
-          if (response.config.showLoader) {
-            store.dispatch('loader/done');
-          }
-
-          return Promise.reject(error);
-        }
-      )
-      //loader ends
         axios.interceptors.response.use(
             response => response,
             error => {
                 if (error.response.status === 403) {
                     this.$store.dispatch('logout');
                     this.$router.push('/');
+                    return;
                 } else if(error.response.status === 419) {
+                    this.$store.dispatch('setGameStatus', 'expired');
                     this.$store.dispatch('logout');
                     this.$router.push('/');
+                    return;
                 }
-                if(!this.$router.currentRoute.path.includes('login')) {
-                  // this.$router.push('/login')
-                  console.log("500 error");
-                }
+                // if(!this.$router.currentRoute.path.includes('login')) this.$router.push('/login')
                 return Promise.reject(error)
             }
         )

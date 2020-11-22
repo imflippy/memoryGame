@@ -1,9 +1,10 @@
 .lobby-wrapper {
-  height: 420px;
+  //height: 420px;
+  height: calc(100vh - 78px - 148px);
   max-width: 1200px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-direction: column;
   margin: 0 auto;
   margin-top: 20px;

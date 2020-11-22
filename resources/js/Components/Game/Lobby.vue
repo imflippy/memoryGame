@@ -37,12 +37,14 @@
     methods: {
       generateGame() {
         if(this.lobbyUsers.length > 1) {
-          console.log("Vise ih je od 1")
+          // console.log("Vise ih je od 1")
           axios.post('/auth/generate-game', {players: this.lobbyUsers}).
           then(() => {
             // console.log("USPEO POST")
           }).catch((ex) => {
             // console.log("NIJE USPEO", ex)
+            this.generateGame();
+            console.log("CATCH, try again")
           })
         }
       },
@@ -56,6 +58,7 @@
 
     },
     mounted() {
+      this.$store.dispatch('pingUser');
       Echo.join('lobby')
         .here((users) => {
           // console.log("HEREHEREHEREHEREHERE", users);

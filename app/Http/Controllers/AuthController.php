@@ -21,7 +21,7 @@ class AuthController extends Controller
      */
     public function __construct() {
         //$this->middleware('auth:api', ['except' => ['login', 'register']]);
-        $this->middleware('jwt.verify:api:jwt.refresh', ['except' => ['login', 'register', 'logout']]);
+        $this->middleware('jwt.verify:api:jwt.refresh', ['except' => ['login', 'register', 'logout', 'pingUser']]);
     }
 
     /**
@@ -115,4 +115,12 @@ class AuthController extends Controller
             'user' => auth()->user()->only(['id', 'email', 'name'])
         ]);
     }
+
+  public function pingUser() {
+      if(auth()->user()) {
+        return response()->json('Ping true', 200);
+      } else {
+        return response()->json('Ping false', 419);
+      }
+  }
 }

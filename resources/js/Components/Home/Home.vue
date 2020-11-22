@@ -23,16 +23,19 @@
     mounted() {
       switch(this.getGameStatus) {
         case 'win':
-          this.$toastr.s("Good job!")
+          this.$toastr.s("V I C T O R Y")
           break;
         case 'opponent-left':
-          this.$toastr.s('Oponent left - you win')
+          this.$toastr.s('Opponent left - V I C T O R Y')
           break;
         case 'lose':
-          this.$toastr.e('Better luck next time')
+          this.$toastr.e('D E F E A T')
           break;
         case 'draw':
-          this.$toastr.i('DRAW')
+          this.$toastr.i('D R A W')
+          break;
+        case 'expired':
+          this.$toastr.e('Your token has expired. Please login again.');
           break;
       }
     }

@@ -67,7 +67,6 @@ const actions = {
       } else {
         commit('setLoginMessage', 'Something went wrong, we are working on it');
       }
-      //console.log(e.response)
     })
   },
   register ({ commit }, credentials) {
@@ -87,12 +86,13 @@ const actions = {
   setUserInfo({commit}, userData) {
       commit('setUserData', userData);
   },
-  logout () {
-    axios.post('/auth/logout').then(res => {
-      console.log(res.data.message);
-    }).catch(e => {
-      console.log('Error with logout: ', e);
-    })
+  logout ({commit}) {
+    // axios.post('/auth/logout').then(res => {
+    //   console.log(res.data.message);
+    // }).catch(e => {
+    //   console.log('Error with logout: ', e);
+    // })
+    commit('clearUserData');
   },
   setLoginMessage({commit}, message) {
     commit('setLoginMessage', message);
@@ -111,6 +111,9 @@ const actions = {
   },
   setGameStatus({commit}, status) {
     commit('setGameStatus', status);
+  },
+  pingUser({commit}) {
+    axios.get('/auth/ping-user').then((res) => {}).catch((err) => {});
   }
 };
 export default {

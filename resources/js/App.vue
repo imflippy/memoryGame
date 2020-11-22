@@ -1,7 +1,6 @@
 <template>
     <div id="app">
-      <loader globalLoader="true" v-if="loading"/>
-      <component :is="layout || 'div'" v-else>
+      <component :is="layout || 'div'">
           <router-view />
       </component>
     </div>
@@ -16,7 +15,6 @@
         'loader': Loader
       },
       computed: {
-        ...mapState('loader', ['loading']),
         ...mapGetters(['user']),
           layout() {
               return (this.$route.meta.layout || 'Front') + '-layout'
@@ -27,6 +25,7 @@
           if(this.user) this.$store.dispatch('logout');
         },
         listenForBroadcast() {
+          this.$store.dispatch('pingUser')
           let token = this.user && this.user.access_token || "token";
           if(token !== 'token') {
             Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer ' + token;
@@ -50,8 +49,8 @@
       },
       mounted() {
         if(this.user)  {
-          this.authChannel();
           this.listenForBroadcast();
+          this.authChannel();
         }
       },
       watch: {

@@ -2,8 +2,7 @@
 export const navigationLinks = {
   'home': {
     'name': 'Home',
-    'href': '/',
-    'auth': false
+    'href': '/'
   },
   'login': {
     'name': 'Login',
