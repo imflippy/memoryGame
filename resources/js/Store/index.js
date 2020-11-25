@@ -7,7 +7,6 @@ import * as Cookies from "js-cookie";
 //import modules here
 import auth from './Modules/auth';
 import settings from './Modules/settings';
-import { loader } from './modules/loader';
 
 Vue.use(Vuex);
 
@@ -15,8 +14,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     modules: {
       auth,
-      settings,
-      loader
+      settings
     },
     plugins: [
         createPersistedState({

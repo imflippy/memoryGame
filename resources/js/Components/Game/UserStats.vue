@@ -1,21 +1,29 @@
 <template>
   <div class="user-stats-wrapper" :class="newClass">
-    <div class="player-stats" v-if="user !== undefined">
-      <div class="player">
-        <p>User:</p><span>{{user.name}}</span>
+    <div class="us-top">
+      <div class="player-stats" v-if="user !== undefined">
+        <div class="player">
+          <p>User:</p><span>{{user.name}}</span>
+        </div>
+        <div class="stats">
+          <p>Collected:</p>
+          <span>{{playerCards}}</span>
+
+        </div>
       </div>
-      <div class="stats">
-        <p>Collected:</p>
-        <span>{{playerCards}}</span>
+      <div v-else class="waiting">
+        <p>Waiting for player...</p>
+      </div>
+      <div class="is-player-turn">
+        <span class="player-turn" v-if="isOnTurn && user !== undefined"><img src="../../../../public/img/brain.png" alt="YOUR TURN"/></span>
+      </div>
+    </div>
+    <div class="us-bot" v-if="isOnTurn">
+      <div class="tik-tok" :style="{width: calculateTimerWidth}">
 
       </div>
     </div>
-    <div v-else class="waiting">
-      <p>Waiting for player...</p>
-    </div>
-    <div class="is-player-turn">
-      <span class="player-turn" v-if="isOnTurn && user !== undefined"><img src="../../../../public/img/brain.png" alt="YOUR TURN"/></span>
-    </div>
+
   </div>
 </template>
 
@@ -35,6 +43,14 @@
       },
       playerCards: {
         default: undefined
+      },
+      timer: {
+        default: 0
+      }
+    },
+    computed: {
+      calculateTimerWidth() {
+        return 100 * this.timer / 30 + "%";
       }
     }
   }

@@ -31,9 +31,11 @@ class CardsController extends Controller
     $currentGame = $request->input('currentGame') ?? null;
     $cardDetails = $request->input('cardDetails') ?? null;
     $gameId = $request->input('gameId');
+    $startedGameTimestamp = $request->input('startedGameTimestamp');
 
     $currentRoundCardsKeys = $currentGame['currentRoundCardsKeys'] ?? [];
     $currentRoundCards = $currentGame['currentRoundCards'] ?? [];
+    $stopwatchTime = time() - (int) $startedGameTimestamp;
 
     if($currentGame != null) {
       array_push($currentRoundCardsKeys, $cardDetails['positionId']);
@@ -58,10 +60,16 @@ class CardsController extends Controller
     $data->currentRoundCards = $currentRoundCards;
     $data->changeUser = $changeUser;
     $data->sameCardId = $sameCardId;
+    $data->stopwatchTime = $stopwatchTime;
 
-    broadcast(new GameEvent($data));
+    try {
+      broadcast(new GameEvent($data));
+      return response()->json("Game logic triggered", 200);
+    } catch (\PDOException $ex) {
+      //log it here
+      return response()->json("We will fix this As soon as possible, Sorry...", 500);
+    }
 
-    return response()->json("Game logic triggered", 200);
 
   }
 }

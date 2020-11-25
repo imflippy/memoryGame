@@ -5,7 +5,8 @@
           :user="user.user"
           :is-on-turn="playerTurn"
           :player-cards="myCards.length"
-          new-class="my-stats"></user-stats>
+          new-class="my-stats"
+          :timer="timer"></user-stats>
         <div class="game-stats">
           <div class="remaining">
             <span class="text" v-if="getOpponentData !== undefined">Remaining</span>
@@ -19,7 +20,8 @@
           :user="getOpponentData"
           :is-on-turn="!playerTurn"
           :player-cards="opponentCards.length"
-          new-class="opponent-stats"></user-stats>
+          new-class="opponent-stats"
+          :timer="timer"></user-stats>
       </div>
       <div class="game-body">
         <div class="all-cards" v-if="getOpponentData !== undefined">
@@ -69,6 +71,8 @@
           playerTurn: false, //stavi false,
           stopwatchTime: 0,
           isCardAvailable: true, // da bi se spamovanje requestova zaustavilo
+          timer: 0,
+          startedGameTimestamp: null
         }
       },
       computed: {
@@ -77,8 +81,8 @@
           return (this.allCards.length / 2)- this.myCards.length - this.opponentCards.length;
         },
         stopwatch() {
-          let mins = Math.floor(this.stopwatchTime / 10 / 60);
-          let secs = Math.floor(this.stopwatchTime / 10 - mins * 60);
+          let mins = Math.floor(this.stopwatchTime / 60);
+          let secs = Math.floor(this.stopwatchTime - mins * 60);
           // let tenths = Math.floor(this.stopwatchTime % 10);
 
           if(mins <= 9){
@@ -146,14 +150,18 @@
               let newCurrRoundCardKeys = res.data.currentRoundCardsKeys;
               let newCurrRoundCard = res.data.currentRoundCards;
               let sameCardId = res.data.sameCardId;
+              let stopwatchTime = res.data.stopwatchTime;
 
               this.currentRoundCardsKeys = newCurrRoundCardKeys;
               this.currentRoundCards = newCurrRoundCard;
+              this.stopwatchTime = stopwatchTime;
 
               if(newCurrRoundCardKeys.length === 2) {
                 setTimeout(() => {
                   if(sameCardId !== 0) {
                     this.playerTurn ? this.myCards.push(sameCardId) : this.opponentCards.push(sameCardId);
+                    //mozda i tu da reset timer - razmisli o biznis planu xd
+                    this.timer = 0;
                   }
                 }, 500)
 
@@ -163,6 +171,7 @@
 
                   if(res.data.changeUser) {
                     this.playerTurn = !this.playerTurn;
+                    this.timer = 0;
                   }
                 }, 2000);
               }
@@ -174,10 +183,13 @@
               currentRoundCardsKeys: this.currentRoundCardsKeys,
               currentRoundCards: this.currentRoundCards
             }
+            let startedGameTimestamp = parseInt(this.startedGameTimestamp / 1000);
+
             let req = {
               gameId: this.getGameId,
               currentGame: currentGame,
-              cardDetails: cardDetails
+              cardDetails: cardDetails,
+              startedGameTimestamp: startedGameTimestamp
             }
             this.isCardAvailable = false;
             this.callOpenCard(req);
@@ -218,8 +230,10 @@
       watch: {
         gameUsers(newVal) {
           if(newVal.length === 2) {
+            this.startedGameTimestamp = Date.now();
             setInterval(() => {
-              this.stopwatchTime = this.stopwatchTime + 10;
+              this.stopwatchTime = this.stopwatchTime + 1;
+              this.timer = this.timer + 1;
             }, 1000);
           }
           //Ako korisnik ceka 5 sekundi, a protivnik nije usao u mec, vraca se u lobby
@@ -243,6 +257,14 @@
               }
               this.$router.push('/');
             }, 2000);
+          }
+        },
+        timer(newVal) {
+          if(newVal > 30) {
+            this.currentRoundCardsKeys = [];
+            this.currentRoundCards = [];
+            this.playerTurn = !this.playerTurn;
+            this.timer = 0;
           }
         }
       },

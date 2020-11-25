@@ -2213,6 +2213,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 
 
@@ -2236,8 +2238,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       playerTurn: false,
       //stavi false,
       stopwatchTime: 0,
-      isCardAvailable: true // da bi se spamovanje requestova zaustavilo
-
+      isCardAvailable: true,
+      // da bi se spamovanje requestova zaustavilo
+      timer: 0,
+      startedGameTimestamp: null
     };
   },
   computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['user', 'getOnlineUsers'])), {}, {
@@ -2245,8 +2249,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       return this.allCards.length / 2 - this.myCards.length - this.opponentCards.length;
     },
     stopwatch: function stopwatch() {
-      var mins = Math.floor(this.stopwatchTime / 10 / 60);
-      var secs = Math.floor(this.stopwatchTime / 10 - mins * 60); // let tenths = Math.floor(this.stopwatchTime % 10);
+      var mins = Math.floor(this.stopwatchTime / 60);
+      var secs = Math.floor(this.stopwatchTime - mins * 60); // let tenths = Math.floor(this.stopwatchTime % 10);
 
       if (mins <= 9) {
         mins = "0" + mins;
@@ -2322,13 +2326,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var newCurrRoundCardKeys = res.data.currentRoundCardsKeys;
         var newCurrRoundCard = res.data.currentRoundCards;
         var sameCardId = res.data.sameCardId;
+        var stopwatchTime = res.data.stopwatchTime;
         _this3.currentRoundCardsKeys = newCurrRoundCardKeys;
         _this3.currentRoundCards = newCurrRoundCard;
+        _this3.stopwatchTime = stopwatchTime;
 
         if (newCurrRoundCardKeys.length === 2) {
           setTimeout(function () {
             if (sameCardId !== 0) {
-              _this3.playerTurn ? _this3.myCards.push(sameCardId) : _this3.opponentCards.push(sameCardId);
+              _this3.playerTurn ? _this3.myCards.push(sameCardId) : _this3.opponentCards.push(sameCardId); //mozda i tu da reset timer - razmisli o biznis planu xd
+
+              _this3.timer = 0;
             }
           }, 500);
           setTimeout(function () {
@@ -2337,6 +2345,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             if (res.data.changeUser) {
               _this3.playerTurn = !_this3.playerTurn;
+              _this3.timer = 0;
             }
           }, 2000);
         }
@@ -2348,10 +2357,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           currentRoundCardsKeys: this.currentRoundCardsKeys,
           currentRoundCards: this.currentRoundCards
         };
+        var startedGameTimestamp = parseInt(this.startedGameTimestamp / 1000);
         var req = {
           gameId: this.getGameId,
           currentGame: currentGame,
-          cardDetails: cardDetails
+          cardDetails: cardDetails,
+          startedGameTimestamp: startedGameTimestamp
         };
         this.isCardAvailable = false;
         this.callOpenCard(req);
@@ -2388,8 +2399,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this5 = this;
 
       if (newVal.length === 2) {
+        this.startedGameTimestamp = Date.now();
         setInterval(function () {
-          _this5.stopwatchTime = _this5.stopwatchTime + 10;
+          _this5.stopwatchTime = _this5.stopwatchTime + 1;
+          _this5.timer = _this5.timer + 1;
         }, 1000);
       } //Ako korisnik ceka 5 sekundi, a protivnik nije usao u mec, vraca se u lobby
 
@@ -2419,6 +2432,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
           _this6.$router.push('/');
         }, 2000);
+      }
+    },
+    timer: function timer(newVal) {
+      if (newVal > 30) {
+        this.currentRoundCardsKeys = [];
+        this.currentRoundCards = [];
+        this.playerTurn = !this.playerTurn;
+        this.timer = 0;
       }
     }
   },
@@ -2657,6 +2678,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "UserStats",
   props: {
@@ -2672,6 +2701,14 @@ __webpack_require__.r(__webpack_exports__);
     },
     playerCards: {
       "default": undefined
+    },
+    timer: {
+      "default": 0
+    }
+  },
+  computed: {
+    calculateTimerWidth: function calculateTimerWidth() {
+      return 100 * this.timer / 30 + "%";
     }
   }
 });
@@ -3693,7 +3730,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".user-stats-wrapper {\n  width: 100%;\n  height: 100%;\n  padding: 0 20px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  border-radius: 10px;\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);\n}\n.user-stats-wrapper .player-stats {\n  height: 100%;\n  display: flex;\n  justify-content: space-evenly;\n  flex-direction: column;\n}\n.user-stats-wrapper .player-stats .player, .user-stats-wrapper .player-stats .stats {\n  display: flex;\n  align-items: center;\n}\n.user-stats-wrapper .player-stats .player p, .user-stats-wrapper .player-stats .stats p {\n  color: #fff;\n  font-size: 18px;\n}\n.user-stats-wrapper .player-stats .player span, .user-stats-wrapper .player-stats .stats span {\n  padding: 0 8px;\n  color: #fddb3a;\n  font-size: 20px;\n}\n.user-stats-wrapper .waiting {\n  font-size: 22px;\n  color: #fff;\n}\n.user-stats-wrapper .is-player-turn {\n  height: 100%;\n}\n.user-stats-wrapper .is-player-turn .player-turn {\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.user-stats-wrapper .is-player-turn .player-turn img {\n  width: auto;\n  height: 70%;\n}\n.user-stats-wrapper.opponent-stats {\n  flex-direction: row-reverse;\n}", ""]);
+exports.push([module.i, ".user-stats-wrapper {\n  width: 100%;\n  height: 100%;\n  padding: 0 20px;\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n  border-radius: 10px;\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);\n}\n.user-stats-wrapper .us-top {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  width: 100%;\n  height: 86%;\n}\n.user-stats-wrapper .us-top .player-stats {\n  height: 100%;\n  display: flex;\n  justify-content: space-evenly;\n  flex-direction: column;\n}\n.user-stats-wrapper .us-top .player-stats .player, .user-stats-wrapper .us-top .player-stats .stats {\n  display: flex;\n  align-items: center;\n}\n.user-stats-wrapper .us-top .player-stats .player p, .user-stats-wrapper .us-top .player-stats .stats p {\n  color: #fff;\n  font-size: 18px;\n}\n.user-stats-wrapper .us-top .player-stats .player span, .user-stats-wrapper .us-top .player-stats .stats span {\n  padding: 0 8px;\n  color: #fddb3a;\n  font-size: 20px;\n}\n.user-stats-wrapper .us-top .waiting {\n  font-size: 22px;\n  color: #fff;\n}\n.user-stats-wrapper .us-top .is-player-turn {\n  height: 100%;\n}\n.user-stats-wrapper .us-top .is-player-turn .player-turn {\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.user-stats-wrapper .us-top .is-player-turn .player-turn img {\n  width: auto;\n  height: 70%;\n}\n.user-stats-wrapper .us-bot {\n  width: 100%;\n  height: 3px;\n  background: linear-gradient(90deg, #00e932 0%, red 100%);\n  display: flex;\n}\n.user-stats-wrapper .us-bot .tik-tok {\n  height: 100%;\n  background-color: #022c43;\n  max-width: 100%;\n  width: 0;\n}\n.user-stats-wrapper.opponent-stats .us-top {\n  flex-direction: row-reverse;\n}\n.user-stats-wrapper.opponent-stats .us-bot {\n  background: linear-gradient(-90deg, #00e932 0%, red 100%);\n  flex-direction: row-reverse;\n}", ""]);
 
 // exports
 
@@ -29804,7 +29841,8 @@ var render = function() {
             user: _vm.user.user,
             "is-on-turn": _vm.playerTurn,
             "player-cards": _vm.myCards.length,
-            "new-class": "my-stats"
+            "new-class": "my-stats",
+            timer: _vm.timer
           }
         }),
         _vm._v(" "),
@@ -29831,7 +29869,8 @@ var render = function() {
             user: _vm.getOpponentData,
             "is-on-turn": !_vm.playerTurn,
             "player-cards": _vm.opponentCards.length,
-            "new-class": "opponent-stats"
+            "new-class": "opponent-stats",
+            timer: _vm.timer
           }
         })
       ],
@@ -29986,35 +30025,46 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "user-stats-wrapper", class: _vm.newClass }, [
-    _vm.user !== undefined
-      ? _c("div", { staticClass: "player-stats" }, [
-          _c("div", { staticClass: "player" }, [
-            _c("p", [_vm._v("User:")]),
-            _c("span", [_vm._v(_vm._s(_vm.user.name))])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "stats" }, [
-            _c("p", [_vm._v("Collected:")]),
+    _c("div", { staticClass: "us-top" }, [
+      _vm.user !== undefined
+        ? _c("div", { staticClass: "player-stats" }, [
+            _c("div", { staticClass: "player" }, [
+              _c("p", [_vm._v("User:")]),
+              _c("span", [_vm._v(_vm._s(_vm.user.name))])
+            ]),
             _vm._v(" "),
-            _c("span", [_vm._v(_vm._s(_vm.playerCards))])
+            _c("div", { staticClass: "stats" }, [
+              _c("p", [_vm._v("Collected:")]),
+              _vm._v(" "),
+              _c("span", [_vm._v(_vm._s(_vm.playerCards))])
+            ])
           ])
-        ])
-      : _c("div", { staticClass: "waiting" }, [
-          _c("p", [_vm._v("Waiting for player...")])
-        ]),
+        : _c("div", { staticClass: "waiting" }, [
+            _c("p", [_vm._v("Waiting for player...")])
+          ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "is-player-turn" }, [
+        _vm.isOnTurn && _vm.user !== undefined
+          ? _c("span", { staticClass: "player-turn" }, [
+              _c("img", {
+                attrs: {
+                  src: __webpack_require__(/*! ../../../../public/img/brain.png */ "./public/img/brain.png"),
+                  alt: "YOUR TURN"
+                }
+              })
+            ])
+          : _vm._e()
+      ])
+    ]),
     _vm._v(" "),
-    _c("div", { staticClass: "is-player-turn" }, [
-      _vm.isOnTurn && _vm.user !== undefined
-        ? _c("span", { staticClass: "player-turn" }, [
-            _c("img", {
-              attrs: {
-                src: __webpack_require__(/*! ../../../../public/img/brain.png */ "./public/img/brain.png"),
-                alt: "YOUR TURN"
-              }
-            })
-          ])
-        : _vm._e()
-    ])
+    _vm.isOnTurn
+      ? _c("div", { staticClass: "us-bot" }, [
+          _c("div", {
+            staticClass: "tik-tok",
+            style: { width: _vm.calculateTimerWidth }
+          })
+        ])
+      : _vm._e()
   ])
 }
 var staticRenderFns = []
@@ -51791,7 +51841,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var js_cookie__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(js_cookie__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _Modules_auth__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Modules/auth */ "./resources/js/Store/Modules/auth.js");
 /* harmony import */ var _Modules_settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Modules/settings */ "./resources/js/Store/Modules/settings.js");
-/* harmony import */ var _modules_loader__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/loader */ "./resources/js/Store/modules/loader.js");
 
 
 
@@ -51800,13 +51849,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
 var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   modules: {
     auth: _Modules_auth__WEBPACK_IMPORTED_MODULE_5__["default"],
-    settings: _Modules_settings__WEBPACK_IMPORTED_MODULE_6__["default"],
-    loader: _modules_loader__WEBPACK_IMPORTED_MODULE_7__["loader"]
+    settings: _Modules_settings__WEBPACK_IMPORTED_MODULE_6__["default"]
   },
   plugins: [Object(vuex_persistedstate__WEBPACK_IMPORTED_MODULE_3__["default"])({
     storage: {
@@ -51829,68 +51876,6 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   })]
 });
 /* harmony default export */ __webpack_exports__["default"] = (store);
-
-/***/ }),
-
-/***/ "./resources/js/Store/modules/loader.js":
-/*!**********************************************!*\
-  !*** ./resources/js/Store/modules/loader.js ***!
-  \**********************************************/
-/*! exports provided: loader */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loader", function() { return loader; });
-var loader = {
-  namespaced: true,
-  state: {
-    loading: false,
-    requestsPending: 0
-  },
-  actions: {
-    show: function show(_ref) {
-      var commit = _ref.commit;
-      commit("show");
-    },
-    hide: function hide(_ref2) {
-      var commit = _ref2.commit;
-      commit("hide");
-    },
-    pending: function pending(_ref3) {
-      var commit = _ref3.commit;
-      commit("pending");
-    },
-    done: function done(_ref4) {
-      var commit = _ref4.commit;
-      commit("done");
-    }
-  },
-  mutations: {
-    show: function show(state) {
-      state.loading = true;
-    },
-    hide: function hide(state) {
-      state.loading = false;
-    },
-    pending: function pending(state) {
-      if (state.requestsPending === 0) {
-        this.commit("loader/show");
-      }
-
-      state.requestsPending++;
-    },
-    done: function done(state) {
-      if (state.requestsPending >= 1) {
-        state.requestsPending--;
-      }
-
-      if (state.requestsPending <= 0) {
-        this.commit("loader/hide");
-      }
-    }
-  }
-};
 
 /***/ }),
 
