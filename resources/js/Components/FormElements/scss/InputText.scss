@@ -15,6 +15,7 @@
     color: $textColor;
     font-size: $fontSizeBigger;
     transition: .3s;
+    border-radius: 16px;
     &:focus {
       border: 2px solid $borderActive;
     }

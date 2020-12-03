@@ -13,6 +13,18 @@ import FrontLayout from '@/js/Layouts/Front.vue';
 import AdminLayout from '@/js/Layouts/Admin.vue';
 import {mapGetters} from "vuex";
 
+
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faHandPointer, faGamepad, faUserMinus, faTrophy } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+library.add(faHandPointer)
+library.add(faGamepad)
+library.add(faUserMinus)
+library.add(faTrophy)
+
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
+
 Vue.config.productionTip = false;
 
 const rootUrl = document.location.protocol +"//" + document.location.hostname + ":" +document.location.port;
