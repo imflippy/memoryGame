@@ -38,6 +38,9 @@ Route::group([
 ], function ($router) {
   Route::get('get-cards', "CardsController@getCards");
   Route::post('open-card', "CardsController@openCard");
+
+  Route::get('lb-data', "GameController@leaderboard");
+
 });
 
 

@@ -2,7 +2,7 @@
   <div class="register-wrapper">
     <page-info title="Register"></page-info>
     <div class="register-form">
-      <form @submit.prevent="registerUser()">
+      <form @keyup.enter="registerUser">
         <form-title title="Create account"></form-title>
         <div class="form-inputs">
           <div class="form-inputs-left">

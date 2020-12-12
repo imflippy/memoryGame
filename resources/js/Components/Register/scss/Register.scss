@@ -1,6 +1,9 @@
 .register-form {
   max-width: 760px;
   margin: 90px auto 45px auto;
+  @media only screen and (max-width: 600px) {
+    margin: 90px 10px 45px 10px;
+  }
   form {
     .btn-register {
       margin-bottom: 20px;
@@ -8,10 +11,15 @@
     .form-inputs {
       display: flex;
       justify-content: space-between;
-
+      @media only screen and (max-width: 600px) {
+        flex-direction: column;
+      }
 
       .form-inputs-left, .form-inputs-right {
         width: 48%;
+        @media only screen and (max-width: 600px) {
+          width: 100%;
+        }
       }
     }
   }

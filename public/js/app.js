@@ -12319,6 +12319,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 
 
@@ -12376,11 +12378,27 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       return this.gameUsers.filter(function (u) {
         return u.id !== _this.user.user.id;
       })[0];
+    },
+    chunkCards: function chunkCards() {
+      var _this2 = this;
+
+      var chunkSize = 4;
+      var p = 0;
+      this.allCards.forEach(function (c) {
+        c.position = p;
+        p++;
+      });
+      var groups = this.allCards.map(function (e, i) {
+        return i % chunkSize === 0 ? _this2.allCards.slice(i, i + chunkSize) : null;
+      }).filter(function (e) {
+        return e;
+      });
+      return groups;
     }
   }),
   methods: {
     getCards: function getCards() {
-      var _this2 = this;
+      var _this3 = this;
 
       var params = {
         gameId: this.getGameId
@@ -12388,68 +12406,68 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       axios.get('/get-cards', {
         params: params
       }).then(function (res) {
-        _this2.allCards = res.data;
+        _this3.allCards = res.data;
       })["catch"](function (err) {// console.log('ERROR WITH CAREDS', err)
       });
     },
     listenToUsersActivity: function listenToUsersActivity() {
-      var _this3 = this;
+      var _this4 = this;
 
       Echo.join('game-info-users.' + this.getGameId).here(function (users) {
         // console.log("HEREHEREHEREHEREHEREGAME", users);
         if (users.length > 2) {
           // console.log("NIJE TVOJ MEC")
-          _this3.$router.push('/lobby');
+          _this4.$router.push('/lobby');
         } else {
-          _this3.getCards(); //dohvatam inicijalno sve karte
+          _this4.getCards(); //dohvatam inicijalno sve karte
 
 
-          _this3.gameUsers = users;
+          _this4.gameUsers = users;
         }
       }).joining(function (user) {
-        if (_this3.gameUsers.length === 1) {
-          _this3.gameUsers.push(user);
+        if (_this4.gameUsers.length === 1) {
+          _this4.gameUsers.push(user);
 
-          _this3.playerTurn = true;
+          _this4.playerTurn = true;
         }
       }).leaving(function (user) {
-        if (_this3.gameUsers.length === 2 && _this3.calculateRemainingPairs !== 0 && user.id === _this3.getOpponentData.id) {
+        if (_this4.gameUsers.length === 2 && _this4.calculateRemainingPairs !== 0 && user.id === _this4.getOpponentData.id) {
           // console.log("POBEDIK JE " + this.user.user.name);
-          var idUser = _this3.user.user.id;
+          var idUser = _this4.user.user.id;
 
-          _this3.postGameStatus(idUser);
+          _this4.postGameStatus(idUser);
 
-          _this3.$store.dispatch('setGameStatus', 'opponent-left');
+          _this4.$store.dispatch('setGameStatus', 'opponent-left');
 
-          _this3.$router.push('/');
+          _this4.$router.push('/');
         }
       }).listen('.GenerateCards', function (res) {
         // console.log("LISTEN", res);
-        _this3.allCards = res.cards;
+        _this4.allCards = res.cards;
       }).listen('GameEvent', function (res) {
         var newCurrRoundCardKeys = res.data.currentRoundCardsKeys;
         var newCurrRoundCard = res.data.currentRoundCards;
         var sameCardId = res.data.sameCardId;
         var stopwatchTime = res.data.stopwatchTime;
-        _this3.currentRoundCardsKeys = newCurrRoundCardKeys;
-        _this3.currentRoundCards = newCurrRoundCard;
-        _this3.stopwatchTime = stopwatchTime;
+        _this4.currentRoundCardsKeys = newCurrRoundCardKeys;
+        _this4.currentRoundCards = newCurrRoundCard;
+        _this4.stopwatchTime = stopwatchTime;
 
         if (newCurrRoundCardKeys.length === 2) {
           setTimeout(function () {
             if (sameCardId !== 0) {
-              _this3.playerTurn ? _this3.myCards.push(sameCardId) : _this3.opponentCards.push(sameCardId); //mozda i tu da reset timer - razmisli o biznis planu xd
+              _this4.playerTurn ? _this4.myCards.push(sameCardId) : _this4.opponentCards.push(sameCardId); //mozda i tu da reset timer - razmisli o biznis planu xd
 
-              _this3.timer = 0;
+              _this4.timer = 0;
             }
           }, 500);
           setTimeout(function () {
-            _this3.currentRoundCardsKeys = [];
-            _this3.currentRoundCards = [];
+            _this4.currentRoundCardsKeys = [];
+            _this4.currentRoundCards = [];
 
             if (res.data.changeUser) {
-              _this3.playerTurn = !_this3.playerTurn;
-              _this3.timer = 0;
+              _this4.playerTurn = !_this4.playerTurn;
+              _this4.timer = 0;
             }
           }, 2000);
         }
@@ -12474,12 +12492,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     },
     callOpenCard: function callOpenCard(paylaod) {
-      var _this4 = this;
+      var _this5 = this;
 
       axios.post('/open-card', paylaod).then(function (res) {
-        _this4.isCardAvailable = true; // console.log("POST", res.data);
+        _this5.isCardAvailable = true; // console.log("POST", res.data);
       })["catch"](function (err) {
-        _this4.isCardAvailable = true; // console.log('ERROR CARd playYYY', err)
+        _this5.isCardAvailable = true; // console.log('ERROR CARd playYYY', err)
       });
     },
     postGameStatus: function postGameStatus(idUser) {
@@ -12500,41 +12518,41 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   watch: {
     gameUsers: function gameUsers(newVal) {
-      var _this5 = this;
+      var _this6 = this;
 
       if (newVal.length === 2) {
         this.startedGameTimestamp = Date.now();
         setInterval(function () {
-          _this5.stopwatchTime = _this5.stopwatchTime + 1;
-          _this5.timer = _this5.timer + 1;
+          _this6.stopwatchTime = _this6.stopwatchTime + 1;
+          _this6.timer = _this6.timer + 1;
         }, 1000);
       } //Ako korisnik ceka 5 sekundi, a protivnik nije usao u mec, vraca se u lobby
 
 
       setTimeout(function () {
         if (newVal.length === 1) {
-          _this5.$router.push('/lobby');
+          _this6.$router.push('/lobby');
         }
       }, 5000);
     },
     calculateRemainingPairs: function calculateRemainingPairs(newVal) {
-      var _this6 = this;
+      var _this7 = this;
 
       if (newVal === 0) {
         setTimeout(function () {
-          if (_this6.myCards.length < _this6.opponentCards.length) {
-            _this6.$store.dispatch('setGameStatus', 'lose');
-          } else if (_this6.myCards.length > _this6.opponentCards.length) {
-            var idUser = _this6.user.user.id;
+          if (_this7.myCards.length < _this7.opponentCards.length) {
+            _this7.$store.dispatch('setGameStatus', 'lose');
+          } else if (_this7.myCards.length > _this7.opponentCards.length) {
+            var idUser = _this7.user.user.id;
 
-            _this6.postGameStatus(idUser);
+            _this7.postGameStatus(idUser);
 
-            _this6.$store.dispatch('setGameStatus', 'win');
+            _this7.$store.dispatch('setGameStatus', 'win');
           } else {
-            _this6.$store.dispatch('setGameStatus', 'draw');
+            _this7.$store.dispatch('setGameStatus', 'draw');
           }
 
-          _this6.$router.push('/');
+          _this7.$router.push('/');
         }, 2000);
       }
     },
@@ -12950,6 +12968,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var _Leaderboard__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Leaderboard */ "./resources/js/Components/Home/Leaderboard.vue");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -12987,10 +13006,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Home",
+  components: {
+    Leaderboard: _Leaderboard__WEBPACK_IMPORTED_MODULE_2__["default"]
+  },
   data: function data() {
     return {
       ringsData: [{
@@ -13032,6 +13058,83 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         this.$toastr.e('Your token has expired. Please login again.');
         break;
     }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Home/Leaderboard.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Home/Leaderboard.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "Leaderboard",
+  data: function data() {
+    return {
+      rows: [],
+      time: null
+    };
+  },
+  methods: {
+    listenToRowsSocket: function listenToRowsSocket() {
+      var _this = this;
+
+      Echo.channel("leaderB").listen('.lb', function (data) {
+        _this.rows = data.socketData.rows;
+        _this.time = data.socketData.time;
+      });
+    },
+    pingSocket: function pingSocket() {
+      var _this2 = this;
+
+      axios.get('lb-data').then(function (res) {
+        console.log('Uspesan ping', res.data);
+        _this2.rows = res.data.rows;
+        _this2.time = res.data.time;
+      })["catch"](function (err) {
+        console.log('Eror with pinging', err);
+      });
+    }
+  },
+  mounted: function mounted() {
+    this.listenToRowsSocket();
+    this.pingSocket();
+  },
+  beforeDestroy: function beforeDestroy() {
+    console.log('LEAVE CH LB');
+    Echo.leaveChannel("leaderB");
   }
 });
 
@@ -13739,7 +13842,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".footer-wrapper {\n  height: 148px;\n  background: #022c43;\n}\n.footer-wrapper footer {\n  height: 100%;\n  max-width: 1200px;\n  margin: 0 auto;\n  display: flex;\n  justify-content: space-between;\n  flex-direction: column;\n}\n.footer-wrapper footer .footer-top {\n  height: 50%;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  position: relative;\n}\n.footer-wrapper footer .footer-top .logo-footer img {\n  padding-left: 10px;\n  width: 112px;\n}\n.footer-wrapper footer .footer-top::after {\n  content: \"\";\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  height: 1px;\n  width: 100%;\n  background-color: rgba(255, 255, 255, 0.1);\n}\n.footer-wrapper footer .footer-bot {\n  height: 50%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.footer-wrapper footer .footer-bot p {\n  font-size: 14px;\n  color: #fff;\n}\n.footer-wrapper footer .footer-bot p a {\n  font-size: 16px;\n  color: #fddb3a;\n}\n@media only screen and (max-width: 900px) {\n.footer-wrapper footer .footer-top {\n    justify-content: center;\n}\n.footer-wrapper footer .footer-top #nav {\n    display: none;\n}\n.footer-wrapper footer .footer-bot p {\n    font-size: 13px;\n}\n.footer-wrapper footer .footer-bot p a {\n    font-size: 15px;\n}\n}", ""]);
+exports.push([module.i, ".footer-wrapper {\n  height: 148px;\n  background: #022c43;\n}\n.footer-wrapper footer {\n  height: 100%;\n  max-width: 1200px;\n  margin: 0 auto;\n  display: flex;\n  justify-content: space-between;\n  flex-direction: column;\n}\n.footer-wrapper footer .footer-top {\n  height: 50%;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  position: relative;\n}\n.footer-wrapper footer .footer-top .logo-footer img {\n  padding-left: 10px;\n  width: 112px;\n}\n.footer-wrapper footer .footer-top::after {\n  content: \"\";\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  height: 1px;\n  width: 100%;\n  background-color: rgba(255, 255, 255, 0.1);\n}\n.footer-wrapper footer .footer-bot {\n  height: 50%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.footer-wrapper footer .footer-bot p {\n  font-size: 14px;\n  color: #fff;\n}\n.footer-wrapper footer .footer-bot p a {\n  font-size: 16px;\n  color: #fddb3a;\n}\n@media only screen and (max-width: 900px) {\n.footer-wrapper footer .footer-top {\n    justify-content: center;\n}\n.footer-wrapper footer .footer-top #nav {\n    display: none;\n}\n.footer-wrapper footer .footer-bot p {\n    font-size: 13px;\n    text-align: center;\n}\n.footer-wrapper footer .footer-bot p a {\n    font-size: 15px;\n}\n}", ""]);
 
 // exports
 
@@ -13796,7 +13899,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".input-wrapper {\n  height: 88px;\n  width: 100%;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  flex-direction: column;\n  margin-bottom: 20px;\n}\n.input-wrapper .input-field {\n  width: 100%;\n  height: 52px;\n  background: transparent;\n  padding: 12px;\n  border: 2px solid rgba(255, 255, 255, 0.1);\n  color: #fff;\n  font-size: 16px;\n  transition: 0.3s;\n  border-radius: 16px;\n}\n.input-wrapper .input-field:focus {\n  border: 2px solid rgba(255, 255, 255, 0.2);\n}", ""]);
+exports.push([module.i, ".input-wrapper {\n  height: 88px;\n  width: 100%;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  flex-direction: column;\n  margin-bottom: 20px;\n}\n.input-wrapper .input-field {\n  width: 100%;\n  height: 52px;\n  background: transparent;\n  padding: 12px;\n  border: 2px solid rgba(255, 255, 255, 0.1);\n  color: #fff;\n  font-size: 16px;\n  transition: 0.3s;\n  border-radius: 16px;\n}\n@media only screen and (max-width: 600px) {\n.input-wrapper .input-field {\n    font-size: 13px;\n}\n}\n.input-wrapper .input-field:focus {\n  border: 2px solid rgba(255, 255, 255, 0.2);\n}", ""]);
 
 // exports
 
@@ -13815,7 +13918,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: 100vh;\n  margin: 0 auto;\n}\n.game-wrapper .game-header {\n  height: 90px;\n  display: flex;\n  justify-content: space-between;\n  padding: 10px 0;\n}\n.game-wrapper .game-header .game-stats {\n  min-width: 160px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  flex-direction: column;\n}\n.game-wrapper .game-header .game-stats .remaining {\n  width: 100%;\n  color: #fff;\n  text-transform: uppercase;\n  font-size: 20px;\n  display: flex;\n  justify-content: space-evenly;\n  align-items: center;\n}\n.game-wrapper .game-header .game-stats .remaining .number {\n  color: #fddb3a;\n  font-size: 26px;\n}\n.game-wrapper .game-header .game-stats .stopwatch {\n  width: 100%;\n  color: #fddb3a;\n  font-size: 26px;\n  text-align: center;\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: calc(100% - 90px);\n  margin: 0 auto;\n}\n.game-wrapper .game-body .all-cards {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  height: 100%;\n}\n.game-wrapper .game-body .game-loader {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}", ""]);
+exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: 100vh;\n  margin: 0 auto;\n}\n.game-wrapper .game-header {\n  height: 90px;\n  display: flex;\n  justify-content: space-between;\n  padding: 10px 0;\n}\n.game-wrapper .game-header .game-stats {\n  min-width: 160px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  flex-direction: column;\n}\n.game-wrapper .game-header .game-stats .remaining {\n  width: 100%;\n  color: #fff;\n  text-transform: uppercase;\n  font-size: 20px;\n  display: flex;\n  justify-content: space-evenly;\n  align-items: center;\n}\n.game-wrapper .game-header .game-stats .remaining .number {\n  color: #fddb3a;\n  font-size: 26px;\n}\n.game-wrapper .game-header .game-stats .stopwatch {\n  width: 100%;\n  color: #fddb3a;\n  font-size: 26px;\n  text-align: center;\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: calc(100% - 90px);\n  margin: 0 auto;\n}\n.game-wrapper .game-body .all-cards {\n  display: flex;\n  justify-content: space-between;\n  flex-direction: column;\n  height: 100%;\n}\n.game-wrapper .game-body .all-cards .card-rows {\n  display: flex;\n  justify-content: space-between;\n}\n.game-wrapper .game-body .game-loader {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}", ""]);
 
 // exports
 
@@ -13835,7 +13938,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".game-card-wrapper {\n  height: 150px;\n  width: 150px;\n  position: relative;\n  margin: 4px;\n}\n.game-card-wrapper .game-card {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  transform-style: preserve-3d;\n  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n  border-radius: 10px;\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n}\n.game-card-wrapper .game-card .front {\n  background: url(" + escape(__webpack_require__(/*! ../../../../public/img/brain.png */ "./public/img/brain.png")) + ");\n  background-position: center;\n  background-size: 45%;\n  background-repeat: no-repeat;\n}\n.game-card-wrapper .game-card div {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  -webkit-backface-visibility: hidden;\n          backface-visibility: hidden;\n  border-radius: 6px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font: 16px/1.5 \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-smoothing: antialiased;\n  color: #47525D;\n}\n.game-card-wrapper .game-card .back {\n  transform: rotateY(180deg);\n}\n.game-card-wrapper .game-card .back .card-name {\n  font-size: 42px;\n  font-weight: 700;\n  transform: rotate(-45deg);\n}\n.game-card-wrapper .game-card.opened {\n  transform: rotateY(180deg);\n}\n.game-card-wrapper .game-card.my-card, .game-card-wrapper .game-card.opponent-card {\n  -webkit-animation-name: disappearCard;\n          animation-name: disappearCard;\n  -webkit-animation-duration: 1500ms;\n          animation-duration: 1500ms;\n  -webkit-animation-fill-mode: forwards;\n          animation-fill-mode: forwards;\n}\n@-webkit-keyframes disappearCard {\n0% {\n    opacity: 1;\n    transform: rotateY(90deg);\n}\n50% {\n    opacity: 0.5;\n    transform: rotateY(0deg);\n}\n100% {\n    display: none;\n    opacity: 0;\n    transform: rotateY(90deg);\n}\n}\n@keyframes disappearCard {\n0% {\n    opacity: 1;\n    transform: rotateY(90deg);\n}\n50% {\n    opacity: 0.5;\n    transform: rotateY(0deg);\n}\n100% {\n    display: none;\n    opacity: 0;\n    transform: rotateY(90deg);\n}\n}", ""]);
+exports.push([module.i, ".game-card-wrapper {\n  height: 150px;\n  width: 150px;\n  position: relative;\n  margin: 4px;\n}\n@media only screen and (max-width: 1200px) {\n.game-card-wrapper {\n    height: 120px;\n    width: 120px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-card-wrapper {\n    height: 70px;\n    width: 70px;\n}\n}\n@media only screen and (max-width: 500px) {\n.game-card-wrapper {\n    height: 60px;\n    width: 60px;\n}\n}\n.game-card-wrapper .game-card {\n  width: 100%;\n  height: 100%;\n  position: absolute;\n  transform-style: preserve-3d;\n  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n  border-radius: 10px;\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);\n  cursor: pointer;\n}\n.game-card-wrapper .game-card .front {\n  background: url(" + escape(__webpack_require__(/*! ../../../../public/img/brain.png */ "./public/img/brain.png")) + ");\n  background-position: center;\n  background-size: 45%;\n  background-repeat: no-repeat;\n}\n.game-card-wrapper .game-card div {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  -webkit-backface-visibility: hidden;\n          backface-visibility: hidden;\n  border-radius: 6px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font: 16px/1.5 \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n  font-smoothing: antialiased;\n  color: #47525D;\n}\n.game-card-wrapper .game-card .back {\n  transform: rotateY(180deg);\n}\n.game-card-wrapper .game-card .back .card-name {\n  font-size: 42px;\n  font-weight: 700;\n  transform: rotate(-45deg);\n}\n@media only screen and (max-width: 1200px) {\n.game-card-wrapper .game-card .back .card-name {\n    font-size: 30px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-card-wrapper .game-card .back .card-name {\n    font-size: 22px;\n}\n}\n@media only screen and (max-width: 500px) {\n.game-card-wrapper .game-card .back .card-name {\n    font-size: 18px;\n}\n}\n.game-card-wrapper .game-card.opened {\n  transform: rotateY(180deg);\n}\n.game-card-wrapper .game-card.my-card, .game-card-wrapper .game-card.opponent-card {\n  -webkit-animation-name: disappearCard;\n          animation-name: disappearCard;\n  -webkit-animation-duration: 1500ms;\n          animation-duration: 1500ms;\n  -webkit-animation-fill-mode: forwards;\n          animation-fill-mode: forwards;\n}\n@-webkit-keyframes disappearCard {\n0% {\n    opacity: 1;\n    transform: rotateY(90deg);\n}\n50% {\n    opacity: 0.5;\n    transform: rotateY(0deg);\n}\n100% {\n    display: none;\n    opacity: 0;\n    transform: rotateY(90deg);\n}\n}\n@keyframes disappearCard {\n0% {\n    opacity: 1;\n    transform: rotateY(90deg);\n}\n50% {\n    opacity: 0.5;\n    transform: rotateY(0deg);\n}\n100% {\n    display: none;\n    opacity: 0;\n    transform: rotateY(90deg);\n}\n}", ""]);
 
 // exports
 
@@ -13854,7 +13957,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".lobby-wrapper {\n  height: calc(100vh - 78px - 148px);\n  max-width: 1200px;\n  display: flex;\n  align-items: center;\n  justify-content: flex-start;\n  flex-direction: column;\n  margin: 0 auto;\n  margin-top: 20px;\n}\n.lobby-wrapper .lobby-top div {\n  text-align: center;\n  font-size: 34px;\n  color: #fff;\n}\n.lobby-wrapper .lobby-top div span {\n  font-size: 40px;\n  color: #fddb3a;\n}\n.lobby-wrapper .lobby-bot {\n  color: #fff;\n  text-align: center;\n  font-size: 34px;\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}", ""]);
+exports.push([module.i, ".lobby-wrapper {\n  height: calc(100vh - 78px - 148px);\n  max-width: 1200px;\n  display: flex;\n  align-items: center;\n  justify-content: flex-start;\n  flex-direction: column;\n  margin: 0 auto;\n  margin-top: 20px;\n}\n.lobby-wrapper .lobby-top div {\n  text-align: center;\n  font-size: 34px;\n  color: #fff;\n}\n@media only screen and (max-width: 600px) {\n.lobby-wrapper .lobby-top div {\n    font-size: 24px;\n}\n}\n.lobby-wrapper .lobby-top div span {\n  font-size: 40px;\n  color: #fddb3a;\n}\n@media only screen and (max-width: 600px) {\n.lobby-wrapper .lobby-top div span {\n    font-size: 30px;\n}\n}\n.lobby-wrapper .lobby-bot {\n  color: #fff;\n  text-align: center;\n  font-size: 34px;\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n}\n@media only screen and (max-width: 600px) {\n.lobby-wrapper .lobby-bot {\n    font-size: 24px;\n}\n}", ""]);
 
 // exports
 
@@ -13911,7 +14014,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".global-overlay {\n  z-index: 1001;\n  width: 100vw;\n  height: 100vh;\n  background-color: #003754;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.global-overlay.lobby {\n  z-index: 0;\n  width: 250px;\n  height: 250px;\n  background-color: transparent;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.global-overlay .overlay-loader {\n  display: block;\n  margin: auto;\n  width: 213px;\n  height: 213px;\n  position: relative;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.global-overlay .loader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  width: 213px;\n  height: 213px;\n  animation-name: rotateAnim;\n  -o-animation-name: rotateAnim;\n  -ms-animation-name: rotateAnim;\n  -webkit-animation-name: rotateAnim;\n  -moz-animation-name: rotateAnim;\n  animation-duration: 0.4s;\n  -o-animation-duration: 0.4s;\n  -ms-animation-duration: 0.4s;\n  -webkit-animation-duration: 0.4s;\n  -moz-animation-duration: 0.4s;\n  animation-iteration-count: infinite;\n  -o-animation-iteration-count: infinite;\n  -ms-animation-iteration-count: infinite;\n  -webkit-animation-iteration-count: infinite;\n  -moz-animation-iteration-count: infinite;\n  animation-timing-function: linear;\n  -o-animation-timing-function: linear;\n  -ms-animation-timing-function: linear;\n  -webkit-animation-timing-function: linear;\n  -moz-animation-timing-function: linear;\n}\n.global-overlay .loader div {\n  width: 17px;\n  height: 17px;\n  border-radius: 50%;\n  border: 2px solid #fddb3a;\n  position: absolute;\n  top: 4px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n}\n.global-overlay .loader div:nth-child(odd) {\n  border-top: none;\n  border-left: none;\n}\n.global-overlay .loader div:nth-child(even) {\n  border-bottom: none;\n  border-right: none;\n}\n.global-overlay .loader div:nth-child(2) {\n  border-width: 4px;\n  left: 0px;\n  top: -9px;\n  width: 26px;\n  height: 26px;\n}\n.global-overlay .loader div:nth-child(3) {\n  border-width: 4px;\n  left: -2px;\n  top: 6px;\n  width: 38px;\n  height: 38px;\n}\n.global-overlay .loader div:nth-child(4) {\n  border-width: 6px;\n  left: -2px;\n  top: -9px;\n  width: 51px;\n  height: 51px;\n}\n.global-overlay .loader div:nth-child(5) {\n  border-width: 6px;\n  left: -2px;\n  top: 9px;\n  width: 68px;\n  height: 68px;\n}\n.global-overlay .loader div:nth-child(6) {\n  border-width: 9px;\n  left: 0px;\n  top: -9px;\n  width: 85px;\n  height: 85px;\n}\n.global-overlay .loader div:nth-child(7) {\n  border-width: 9px;\n  left: 0px;\n  top: 13px;\n  width: 106px;\n  height: 106px;\n}\n@keyframes rotateAnim {\nfrom {\n    transform: rotate(360deg);\n}\nto {\n    transform: rotate(0deg);\n}\n}\n@-webkit-keyframes rotateAnim {\nfrom {\n    -webkit-transform: rotate(360deg);\n}\nto {\n    -webkit-transform: rotate(0deg);\n}\n}\n.overlay-loader {\n  display: block;\n  margin: auto;\n  width: 62px;\n  height: 62px;\n  position: relative;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.loader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  width: 62px;\n  height: 62px;\n  animation-name: rotateAnim;\n  -o-animation-name: rotateAnim;\n  -ms-animation-name: rotateAnim;\n  -webkit-animation-name: rotateAnim;\n  -moz-animation-name: rotateAnim;\n  animation-duration: 0.35s;\n  -o-animation-duration: 0.35s;\n  -ms-animation-duration: 0.35s;\n  -webkit-animation-duration: 0.35s;\n  -moz-animation-duration: 0.35s;\n  animation-iteration-count: infinite;\n  -o-animation-iteration-count: infinite;\n  -ms-animation-iteration-count: infinite;\n  -webkit-animation-iteration-count: infinite;\n  -moz-animation-iteration-count: infinite;\n  animation-timing-function: linear;\n  -o-animation-timing-function: linear;\n  -ms-animation-timing-function: linear;\n  -webkit-animation-timing-function: linear;\n  -moz-animation-timing-function: linear;\n}\n.loader div {\n  width: 5px;\n  height: 5px;\n  border-radius: 50%;\n  border: 1px solid #fddb3a;\n  position: absolute;\n  top: 1px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n}\n.loader div:nth-child(odd) {\n  border-top: none;\n  border-left: none;\n}\n.loader div:nth-child(even) {\n  border-bottom: none;\n  border-right: none;\n}\n.loader div:nth-child(2) {\n  border-width: 1px;\n  left: 0px;\n  top: -2px;\n  width: 7px;\n  height: 7px;\n}\n.loader div:nth-child(3) {\n  border-width: 1px;\n  left: -1px;\n  top: 2px;\n  width: 11px;\n  height: 11px;\n}\n.loader div:nth-child(4) {\n  border-width: 2px;\n  left: -1px;\n  top: -2px;\n  width: 15px;\n  height: 15px;\n}\n.loader div:nth-child(5) {\n  border-width: 2px;\n  left: -1px;\n  top: 2px;\n  width: 20px;\n  height: 20px;\n}\n.loader div:nth-child(6) {\n  border-width: 2px;\n  left: 0px;\n  top: -2px;\n  width: 25px;\n  height: 25px;\n}\n.loader div:nth-child(7) {\n  border-width: 2px;\n  left: 0px;\n  top: 4px;\n  width: 31px;\n  height: 31px;\n}\n@keyframes rotateAnim {\nfrom {\n    transform: rotate(360deg);\n}\nto {\n    transform: rotate(0deg);\n}\n}\n@-webkit-keyframes rotateAnim {\nfrom {\n    -webkit-transform: rotate(360deg);\n}\nto {\n    -webkit-transform: rotate(0deg);\n}\n}", ""]);
+exports.push([module.i, ".global-overlay {\n  z-index: 1001;\n  width: 100vw;\n  height: 100vh;\n  background-color: #003754;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.global-overlay.lobby {\n  z-index: 0;\n  width: 250px;\n  height: 250px;\n  background-color: transparent;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n@media only screen and (max-width: 650px) {\n.global-overlay.lobby {\n    width: 230px;\n    height: 230px;\n}\n}\n.global-overlay .overlay-loader {\n  display: block;\n  margin: auto;\n  width: 213px;\n  height: 213px;\n  position: relative;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.global-overlay .loader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  width: 213px;\n  height: 213px;\n  animation-name: rotateAnim;\n  -o-animation-name: rotateAnim;\n  -ms-animation-name: rotateAnim;\n  -webkit-animation-name: rotateAnim;\n  -moz-animation-name: rotateAnim;\n  animation-duration: 0.4s;\n  -o-animation-duration: 0.4s;\n  -ms-animation-duration: 0.4s;\n  -webkit-animation-duration: 0.4s;\n  -moz-animation-duration: 0.4s;\n  animation-iteration-count: infinite;\n  -o-animation-iteration-count: infinite;\n  -ms-animation-iteration-count: infinite;\n  -webkit-animation-iteration-count: infinite;\n  -moz-animation-iteration-count: infinite;\n  animation-timing-function: linear;\n  -o-animation-timing-function: linear;\n  -ms-animation-timing-function: linear;\n  -webkit-animation-timing-function: linear;\n  -moz-animation-timing-function: linear;\n}\n.global-overlay .loader div {\n  width: 17px;\n  height: 17px;\n  border-radius: 50%;\n  border: 2px solid #fddb3a;\n  position: absolute;\n  top: 4px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n}\n.global-overlay .loader div:nth-child(odd) {\n  border-top: none;\n  border-left: none;\n}\n.global-overlay .loader div:nth-child(even) {\n  border-bottom: none;\n  border-right: none;\n}\n.global-overlay .loader div:nth-child(2) {\n  border-width: 4px;\n  left: 0px;\n  top: -9px;\n  width: 26px;\n  height: 26px;\n}\n.global-overlay .loader div:nth-child(3) {\n  border-width: 4px;\n  left: -2px;\n  top: 6px;\n  width: 38px;\n  height: 38px;\n}\n.global-overlay .loader div:nth-child(4) {\n  border-width: 6px;\n  left: -2px;\n  top: -9px;\n  width: 51px;\n  height: 51px;\n}\n.global-overlay .loader div:nth-child(5) {\n  border-width: 6px;\n  left: -2px;\n  top: 9px;\n  width: 68px;\n  height: 68px;\n}\n.global-overlay .loader div:nth-child(6) {\n  border-width: 9px;\n  left: 0px;\n  top: -9px;\n  width: 85px;\n  height: 85px;\n}\n.global-overlay .loader div:nth-child(7) {\n  border-width: 9px;\n  left: 0px;\n  top: 13px;\n  width: 106px;\n  height: 106px;\n}\n@keyframes rotateAnim {\nfrom {\n    transform: rotate(360deg);\n}\nto {\n    transform: rotate(0deg);\n}\n}\n@-webkit-keyframes rotateAnim {\nfrom {\n    -webkit-transform: rotate(360deg);\n}\nto {\n    -webkit-transform: rotate(0deg);\n}\n}\n.overlay-loader {\n  display: block;\n  margin: auto;\n  width: 62px;\n  height: 62px;\n  position: relative;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.loader {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n  width: 62px;\n  height: 62px;\n  animation-name: rotateAnim;\n  -o-animation-name: rotateAnim;\n  -ms-animation-name: rotateAnim;\n  -webkit-animation-name: rotateAnim;\n  -moz-animation-name: rotateAnim;\n  animation-duration: 0.35s;\n  -o-animation-duration: 0.35s;\n  -ms-animation-duration: 0.35s;\n  -webkit-animation-duration: 0.35s;\n  -moz-animation-duration: 0.35s;\n  animation-iteration-count: infinite;\n  -o-animation-iteration-count: infinite;\n  -ms-animation-iteration-count: infinite;\n  -webkit-animation-iteration-count: infinite;\n  -moz-animation-iteration-count: infinite;\n  animation-timing-function: linear;\n  -o-animation-timing-function: linear;\n  -ms-animation-timing-function: linear;\n  -webkit-animation-timing-function: linear;\n  -moz-animation-timing-function: linear;\n}\n.loader div {\n  width: 5px;\n  height: 5px;\n  border-radius: 50%;\n  border: 1px solid #fddb3a;\n  position: absolute;\n  top: 1px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  margin: auto;\n}\n.loader div:nth-child(odd) {\n  border-top: none;\n  border-left: none;\n}\n.loader div:nth-child(even) {\n  border-bottom: none;\n  border-right: none;\n}\n.loader div:nth-child(2) {\n  border-width: 1px;\n  left: 0px;\n  top: -2px;\n  width: 7px;\n  height: 7px;\n}\n.loader div:nth-child(3) {\n  border-width: 1px;\n  left: -1px;\n  top: 2px;\n  width: 11px;\n  height: 11px;\n}\n.loader div:nth-child(4) {\n  border-width: 2px;\n  left: -1px;\n  top: -2px;\n  width: 15px;\n  height: 15px;\n}\n.loader div:nth-child(5) {\n  border-width: 2px;\n  left: -1px;\n  top: 2px;\n  width: 20px;\n  height: 20px;\n}\n.loader div:nth-child(6) {\n  border-width: 2px;\n  left: 0px;\n  top: -2px;\n  width: 25px;\n  height: 25px;\n}\n.loader div:nth-child(7) {\n  border-width: 2px;\n  left: 0px;\n  top: 4px;\n  width: 31px;\n  height: 31px;\n}\n@keyframes rotateAnim {\nfrom {\n    transform: rotate(360deg);\n}\nto {\n    transform: rotate(0deg);\n}\n}\n@-webkit-keyframes rotateAnim {\nfrom {\n    -webkit-transform: rotate(360deg);\n}\nto {\n    -webkit-transform: rotate(0deg);\n}\n}", ""]);
 
 // exports
 
@@ -13950,7 +14053,26 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".home-wrapper .first-view-wrapper {\n  height: 50vh;\n  background-size: cover;\n  position: relative;\n}\n.home-wrapper .first-view-wrapper::after {\n  content: \"\";\n  position: absolute;\n  left: 0;\n  top: 0;\n  background: #022c43;\n  width: 100%;\n  height: 100%;\n  opacity: 0.9;\n}\n.home-wrapper .first-view-wrapper .first-view {\n  height: 100%;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  max-width: 1200px;\n  margin: 0 auto;\n  position: relative;\n  z-index: 1;\n}\n.home-wrapper .first-view-wrapper .first-view .title h1 {\n  font-size: 60px;\n  color: #fff;\n  text-transform: uppercase;\n}\n.home-wrapper .first-view-wrapper .first-view .phone {\n  height: 100%;\n}\n.home-wrapper .first-view-wrapper .first-view .phone img {\n  height: 100%;\n}\n.home-wrapper .how-it-works {\n  height: 100%;\n  max-width: 1200px;\n  margin: 40px auto;\n}\n.home-wrapper .how-it-works .title {\n  text-align: center;\n  margin-bottom: 40px;\n}\n.home-wrapper .how-it-works .title h3 {\n  font-size: 34px;\n  color: #fff;\n}\n.home-wrapper .how-it-works .rings {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n}\n.home-wrapper .how-it-works .rings .ring-wrapper {\n  height: 300px;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-evenly;\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring {\n  width: 180px;\n  height: 180px;\n  border-radius: 50%;\n  transition: 0.4s;\n  border: 6px solid rgba(255, 255, 255, 0.2);\n  position: relative;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 44px;\n  color: rgba(255, 255, 255, 0.4);\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring .step {\n  width: 50px;\n  height: 50px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: #fddb3a;\n  color: #022c43;\n  position: absolute;\n  top: 0;\n  right: 0;\n  border-radius: 50%;\n  font-size: 14px;\n  font-weight: 600;\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring:hover {\n  background-color: rgba(255, 255, 255, 0.2);\n  color: #fddb3a;\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring::after {\n  content: \"\";\n  position: absolute;\n  background: url(" + escape(__webpack_require__(/*! ../../../../public/img/arrow.png */ "./public/img/arrow.png")) + ") center center no-repeat;\n  width: 50px;\n  height: 30px;\n  top: 50%;\n  right: -108px;\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring.trophy::after {\n  content: unset;\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring-title {\n  font-size: 30px;\n  color: #fff;\n  text-align: center;\n}", ""]);
+exports.push([module.i, ".home-wrapper .first-view-wrapper {\n  height: 50vh;\n  background-size: cover;\n  position: relative;\n}\n@media only screen and (max-width: 600px) {\n.home-wrapper .first-view-wrapper {\n    height: 30vh;\n}\n}\n.home-wrapper .first-view-wrapper::after {\n  content: \"\";\n  position: absolute;\n  left: 0;\n  top: 0;\n  background: #022c43;\n  width: 100%;\n  height: 100%;\n  opacity: 0.9;\n}\n.home-wrapper .first-view-wrapper .first-view {\n  height: 100%;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  max-width: 1200px;\n  margin: 0 auto;\n  position: relative;\n  z-index: 1;\n}\n@media only screen and (max-width: 1200px) {\n.home-wrapper .first-view-wrapper .first-view .title {\n    margin: 0 auto;\n    text-align: center;\n}\n}\n.home-wrapper .first-view-wrapper .first-view .title h1 {\n  font-size: 60px;\n  color: #fff;\n  text-transform: uppercase;\n}\n@media only screen and (max-width: 900px) {\n.home-wrapper .first-view-wrapper .first-view .title h1 {\n    font-size: 30px;\n}\n}\n.home-wrapper .first-view-wrapper .first-view .phone {\n  height: 100%;\n}\n@media only screen and (max-width: 900px) {\n.home-wrapper .first-view-wrapper .first-view .phone {\n    display: none;\n}\n}\n.home-wrapper .first-view-wrapper .first-view .phone img {\n  height: 100%;\n}\n.home-wrapper .how-it-works {\n  height: 100%;\n  max-width: 1200px;\n  margin: 40px auto;\n}\n@media only screen and (max-width: 1200px) {\n.home-wrapper .how-it-works {\n    max-width: 800px;\n}\n}\n.home-wrapper .how-it-works .title {\n  text-align: center;\n  margin-bottom: 40px;\n}\n.home-wrapper .how-it-works .title h3 {\n  font-size: 34px;\n  color: #fff;\n}\n@media only screen and (max-width: 650px) {\n.home-wrapper .how-it-works .title h3 {\n    font-size: 20px;\n}\n}\n.home-wrapper .how-it-works .rings {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin: 0 20px;\n}\n@media only screen and (max-width: 1200px) {\n.home-wrapper .how-it-works .rings {\n    margin: 0 10px;\n}\n}\n.home-wrapper .how-it-works .rings .ring-wrapper {\n  height: 300px;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-evenly;\n}\n@media only screen and (max-width: 1200px) {\n.home-wrapper .how-it-works .rings .ring-wrapper {\n    height: 150px;\n    width: 72px;\n}\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring {\n  width: 180px;\n  height: 180px;\n  border-radius: 50%;\n  transition: 0.4s;\n  border: 6px solid rgba(255, 255, 255, 0.2);\n  position: relative;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 44px;\n  color: rgba(255, 255, 255, 0.4);\n  margin: 0 auto;\n}\n@media only screen and (max-width: 1200px) {\n.home-wrapper .how-it-works .rings .ring-wrapper .ring {\n    width: 70px;\n    height: 70px;\n    font-size: 22px;\n}\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring .step {\n  width: 50px;\n  height: 50px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: #fddb3a;\n  color: #022c43;\n  position: absolute;\n  top: 0;\n  right: 0;\n  border-radius: 50%;\n  font-size: 14px;\n  font-weight: 600;\n  margin: 0 auto;\n}\n@media only screen and (max-width: 1200px) {\n.home-wrapper .how-it-works .rings .ring-wrapper .ring .step {\n    width: 25px;\n    height: 25px;\n    top: -6px;\n    right: -6px;\n    font-size: 11px;\n}\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring:hover {\n  background-color: rgba(255, 255, 255, 0.2);\n  color: #fddb3a;\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring::after {\n  content: \"\";\n  position: absolute;\n  background: url(" + escape(__webpack_require__(/*! ../../../../public/img/arrow.png */ "./public/img/arrow.png")) + ") center center no-repeat;\n  width: 50px;\n  height: 30px;\n  top: 50%;\n  right: -108px;\n}\n@media only screen and (max-width: 1200px) {\n.home-wrapper .how-it-works .rings .ring-wrapper .ring::after {\n    width: 52px;\n    height: 18px;\n}\n}\n@media only screen and (max-width: 650px) {\n.home-wrapper .how-it-works .rings .ring-wrapper .ring::after {\n    content: unset;\n}\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring.trophy::after {\n  content: unset;\n}\n.home-wrapper .how-it-works .rings .ring-wrapper .ring-title {\n  font-size: 30px;\n  color: #fff;\n  text-align: center;\n}\n@media only screen and (max-width: 1200px) {\n.home-wrapper .how-it-works .rings .ring-wrapper .ring-title {\n    font-size: 16px;\n}\n}", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, ".leader-wrapper {\n  max-width: 1200px;\n  margin: 30px auto;\n}\n@media only screen and (max-width: 650px) {\n.leader-wrapper {\n    margin: 30px 10px;\n}\n}\n.leader-wrapper .ld-hd {\n  display: flex;\n  justify-content: center;\n  margin: 45px 0;\n  position: relative;\n}\n.leader-wrapper .ld-hd div h3 {\n  text-align: center;\n  font-size: 34px;\n  color: #fff;\n}\n@media only screen and (max-width: 650px) {\n.leader-wrapper .ld-hd div h3 {\n    font-size: 20px;\n}\n}\n.leader-wrapper .time {\n  position: absolute;\n  right: 20px;\n  bottom: 0;\n}\n@media only screen and (max-width: 900px) {\n.leader-wrapper .time {\n    bottom: -40px;\n}\n}\n.leader-wrapper .time p {\n  color: #fff;\n  font-size: 14px;\n  text-align: right;\n}\n.leader-wrapper .time p span {\n  font-size: 16px;\n  color: #fddb3a;\n}\n.leader-wrapper .table {\n  min-height: 200px;\n  max-height: 400px;\n  overflow: scroll;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.leader-wrapper .table table {\n  width: 100%;\n  border-collapse: collapse;\n}\n.leader-wrapper .header .row {\n  height: 40px;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n@media only screen and (max-width: 900px) {\n.leader-wrapper .header .row {\n    height: 30px;\n}\n}\n.leader-wrapper .header .row th {\n  border-right: 1px solid rgba(255, 255, 255, 0.1);\n  background-color: #022c43;\n  color: #fddb3a;\n  font-size: 20px;\n  text-align: center;\n  position: -webkit-sticky;\n  position: sticky;\n  top: -1px;\n}\n.leader-wrapper .header .row th:last-child {\n  border-right: none;\n}\n.leader-wrapper .body .row {\n  height: 40px;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.leader-wrapper .body .row:nth-child(2n+2) {\n  background-color: #022c43;\n}\n@media only screen and (max-width: 900px) {\n.leader-wrapper .body .row {\n    height: 30px;\n}\n}\n.leader-wrapper .body .row td {\n  border-right: 1px solid rgba(255, 255, 255, 0.1);\n  font-size: 16px;\n  color: #fff;\n  text-align: center;\n}\n.leader-wrapper .body .row td:last-child {\n  border-right: none;\n}\n.leader-wrapper .body .row td.idRank {\n  font-size: 18px;\n  color: #fddb3a;\n}", ""]);
 
 // exports
 
@@ -13969,7 +14091,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".login-form {\n  display: flex;\n  justify-content: center;\n  max-width: 460px;\n  margin: 90px auto 45px auto;\n  flex-direction: column;\n}\n.login-form form {\n  width: 100%;\n}\n.login-form form .btn-login {\n  margin-bottom: 20px;\n}\n.login-form .quick-links {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-top: 12px;\n}\n.login-form .quick-links .nav-link {\n  font-size: 14px;\n  color: rgba(255, 255, 255, 0.5);\n  letter-spacing: 0.05rem;\n  transition: 0.3s;\n}\n.login-form .quick-links .nav-link:hover {\n  color: #fddb3a;\n}", ""]);
+exports.push([module.i, ".login-form {\n  display: flex;\n  justify-content: center;\n  max-width: 460px;\n  margin: 90px auto 45px auto;\n  flex-direction: column;\n}\n@media only screen and (max-width: 600px) {\n.login-form {\n    margin: 90px 10px 45px 10px;\n}\n}\n.login-form form {\n  width: 100%;\n}\n.login-form form .btn-login {\n  margin-bottom: 20px;\n}\n.login-form .quick-links {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-top: 12px;\n}\n.login-form .quick-links .nav-link {\n  font-size: 14px;\n  color: rgba(255, 255, 255, 0.5);\n  letter-spacing: 0.05rem;\n  transition: 0.3s;\n}\n.login-form .quick-links .nav-link:hover {\n  color: #fddb3a;\n}", ""]);
 
 // exports
 
@@ -13988,7 +14110,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "#nav {\n  display: flex;\n  align-items: center;\n}\n#nav .nav-link {\n  font-size: 14px;\n  color: #fff;\n  text-transform: uppercase;\n  letter-spacing: 0.05rem;\n  padding: 10px;\n  transition: 0.3s;\n}\n#nav .nav-link:hover {\n  color: #fddb3a;\n}\n#nav .nav-link.router-link-exact-active {\n  color: #fddb3a;\n}", ""]);
+exports.push([module.i, "#nav {\n  display: flex;\n  align-items: center;\n}\n#nav .nav-link {\n  font-size: 14px;\n  color: #fff;\n  text-transform: uppercase;\n  letter-spacing: 0.05rem;\n  padding: 10px;\n  transition: 0.3s;\n}\n@media only screen and (max-width: 600px) {\n#nav .nav-link {\n    font-size: 12px;\n    padding: 4px;\n}\n}\n#nav .nav-link:hover {\n  color: #fddb3a;\n}\n#nav .nav-link.router-link-exact-active {\n  color: #fddb3a;\n}", ""]);
 
 // exports
 
@@ -14007,7 +14129,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".page-info {\n  height: 282px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background-size: cover;\n  position: relative;\n}\n.page-info::after {\n  content: \"\";\n  position: absolute;\n  left: 0;\n  top: 0;\n  background: #022c43;\n  width: 100%;\n  height: 100%;\n  opacity: 0.9;\n}\n.page-info h2 {\n  font-size: 52px;\n  font-weight: 700;\n  color: #fff;\n  z-index: 1;\n}", ""]);
+exports.push([module.i, ".page-info {\n  height: 282px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  background-size: cover;\n  position: relative;\n}\n@media only screen and (max-width: 600px) {\n.page-info {\n    height: 150px;\n}\n}\n.page-info::after {\n  content: \"\";\n  position: absolute;\n  left: 0;\n  top: 0;\n  background: #022c43;\n  width: 100%;\n  height: 100%;\n  opacity: 0.9;\n}\n.page-info h2 {\n  font-size: 52px;\n  font-weight: 700;\n  color: #fff;\n  z-index: 1;\n}\n@media only screen and (max-width: 600px) {\n.page-info h2 {\n    font-size: 30px;\n}\n}", ""]);
 
 // exports
 
@@ -14026,7 +14148,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".register-form {\n  max-width: 760px;\n  margin: 90px auto 45px auto;\n}\n.register-form form .btn-register {\n  margin-bottom: 20px;\n}\n.register-form form .form-inputs {\n  display: flex;\n  justify-content: space-between;\n}\n.register-form form .form-inputs .form-inputs-left, .register-form form .form-inputs .form-inputs-right {\n  width: 48%;\n}\n.register-form .quick-links {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-top: 12px;\n}\n.register-form .quick-links .nav-link {\n  font-size: 14px;\n  color: rgba(255, 255, 255, 0.5);\n  letter-spacing: 0.05rem;\n  transition: 0.3s;\n}\n.register-form .quick-links .nav-link:hover {\n  color: #fddb3a;\n}", ""]);
+exports.push([module.i, ".register-form {\n  max-width: 760px;\n  margin: 90px auto 45px auto;\n}\n@media only screen and (max-width: 600px) {\n.register-form {\n    margin: 90px 10px 45px 10px;\n}\n}\n.register-form form .btn-register {\n  margin-bottom: 20px;\n}\n.register-form form .form-inputs {\n  display: flex;\n  justify-content: space-between;\n}\n@media only screen and (max-width: 600px) {\n.register-form form .form-inputs {\n    flex-direction: column;\n}\n}\n.register-form form .form-inputs .form-inputs-left, .register-form form .form-inputs .form-inputs-right {\n  width: 48%;\n}\n@media only screen and (max-width: 600px) {\n.register-form form .form-inputs .form-inputs-left, .register-form form .form-inputs .form-inputs-right {\n    width: 100%;\n}\n}\n.register-form .quick-links {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-top: 12px;\n}\n.register-form .quick-links .nav-link {\n  font-size: 14px;\n  color: rgba(255, 255, 255, 0.5);\n  letter-spacing: 0.05rem;\n  transition: 0.3s;\n}\n.register-form .quick-links .nav-link:hover {\n  color: #fddb3a;\n}", ""]);
 
 // exports
 
@@ -39100,6 +39222,36 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss&":
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss& ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./Leaderboard.vue?vue&type=style&index=0&lang=scss& */ "./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Login/Login.vue?vue&type=style&index=0&lang=scss&":
 /*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--7-2!./node_modules/sass-loader/dist/cjs.js??ref--7-3!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Login/Login.vue?vue&type=style&index=0&lang=scss& ***!
@@ -40075,20 +40227,29 @@ var render = function() {
         ? _c(
             "div",
             { staticClass: "all-cards" },
-            _vm._l(_vm.allCards, function(card, cId) {
-              return _c("game-card", {
-                key: cId,
-                attrs: {
-                  card: card,
-                  positionId: cId,
-                  "is-opened": _vm.currentRoundCardsKeys.includes(cId),
-                  "is-my-card": _vm.myCards.includes(card.id),
-                  "is-oppoent-card": _vm.opponentCards.includes(card.id)
-                },
-                on: { openCard: _vm.openCard }
-              })
+            _vm._l(_vm.chunkCards, function(singleRow, index) {
+              return _c(
+                "div",
+                { staticClass: "card-rows" },
+                _vm._l(singleRow, function(card, cId) {
+                  return _c("game-card", {
+                    key: cId,
+                    attrs: {
+                      card: card,
+                      positionId: card.position,
+                      "is-opened": _vm.currentRoundCardsKeys.includes(
+                        card.position
+                      ),
+                      "is-my-card": _vm.myCards.includes(card.id),
+                      "is-oppoent-card": _vm.opponentCards.includes(card.id)
+                    },
+                    on: { openCard: _vm.openCard }
+                  })
+                }),
+                1
+              )
             }),
-            1
+            0
           )
         : _c(
             "div",
@@ -40454,7 +40615,9 @@ var render = function() {
         }),
         0
       )
-    ])
+    ]),
+    _vm._v(" "),
+    _c("section", { staticClass: "leaderboard-home" }, [_c("leaderboard")], 1)
   ])
 }
 var staticRenderFns = [
@@ -40501,6 +40664,83 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Home/Leaderboard.vue?vue&type=template&id=2b64b5f8&":
+/*!*******************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Home/Leaderboard.vue?vue&type=template&id=2b64b5f8& ***!
+  \*******************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.rows.length
+    ? _c("div", { staticClass: "leader-wrapper" }, [
+        _c("div", { staticClass: "ld-hd" }, [
+          _c("div", [
+            _c("h3", [_vm._v("Top " + _vm._s(_vm.rows.length) + " Players")])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "time" }, [
+            _c("p", [
+              _vm._v("Updated at: "),
+              _c("span", [_vm._v(_vm._s(_vm.time))])
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "table" }, [
+          _c("table", [
+            _vm._m(0),
+            _vm._v(" "),
+            _c(
+              "tbody",
+              { staticClass: "body" },
+              _vm._l(_vm.rows, function(r, index) {
+                return _c("tr", { key: index, staticClass: "row" }, [
+                  _c("td", { staticClass: "idRank" }, [
+                    _vm._v(_vm._s(index + 1))
+                  ]),
+                  _vm._v(" "),
+                  _c("td", { staticClass: "player" }, [_vm._v(_vm._s(r.name))]),
+                  _vm._v(" "),
+                  _c("td", { staticClass: "wins" }, [_vm._v(_vm._s(r.wins))])
+                ])
+              }),
+              0
+            )
+          ])
+        ])
+      ])
+    : _vm._e()
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", { staticClass: "header" }, [
+      _c("tr", { staticClass: "row" }, [
+        _c("th", { staticClass: "idRank" }, [_vm._v("Place")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "player" }, [_vm._v("Player")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "wins" }, [_vm._v("Wins")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Login/Login.vue?vue&type=template&id=eb0de2b0&":
 /*!**************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/Components/Login/Login.vue?vue&type=template&id=eb0de2b0& ***!
@@ -40524,6 +40764,19 @@ var render = function() {
       _c("div", { staticClass: "login-form" }, [
         _c(
           "form",
+          {
+            on: {
+              keyup: function($event) {
+                if (
+                  !$event.type.indexOf("key") &&
+                  _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+                ) {
+                  return null
+                }
+                return _vm.loginUser($event)
+              }
+            }
+          },
           [
             _c("form-title", { attrs: { title: "Login and Play!" } }),
             _vm._v(" "),
@@ -40716,9 +40969,14 @@ var render = function() {
           "form",
           {
             on: {
-              submit: function($event) {
-                $event.preventDefault()
-                return _vm.registerUser()
+              keyup: function($event) {
+                if (
+                  !$event.type.indexOf("key") &&
+                  _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+                ) {
+                  return null
+                }
+                return _vm.registerUser($event)
               }
             }
           },
@@ -61344,6 +61602,93 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/Components/Home/Leaderboard.vue":
+/*!******************************************************!*\
+  !*** ./resources/js/Components/Home/Leaderboard.vue ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Leaderboard_vue_vue_type_template_id_2b64b5f8___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Leaderboard.vue?vue&type=template&id=2b64b5f8& */ "./resources/js/Components/Home/Leaderboard.vue?vue&type=template&id=2b64b5f8&");
+/* harmony import */ var _Leaderboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Leaderboard.vue?vue&type=script&lang=js& */ "./resources/js/Components/Home/Leaderboard.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _Leaderboard_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Leaderboard.vue?vue&type=style&index=0&lang=scss& */ "./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _Leaderboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Leaderboard_vue_vue_type_template_id_2b64b5f8___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Leaderboard_vue_vue_type_template_id_2b64b5f8___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/Components/Home/Leaderboard.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/Components/Home/Leaderboard.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************!*\
+  !*** ./resources/js/Components/Home/Leaderboard.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./Leaderboard.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Home/Leaderboard.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss&":
+/*!****************************************************************************************!*\
+  !*** ./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss& ***!
+  \****************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--7-2!../../../../node_modules/sass-loader/dist/cjs.js??ref--7-3!../../../../node_modules/vue-loader/lib??vue-loader-options!./Leaderboard.vue?vue&type=style&index=0&lang=scss& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/sass-loader/dist/cjs.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Home/Leaderboard.vue?vue&type=style&index=0&lang=scss&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_7_2_node_modules_sass_loader_dist_cjs_js_ref_7_3_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_style_index_0_lang_scss___WEBPACK_IMPORTED_MODULE_0___default.a); 
+
+/***/ }),
+
+/***/ "./resources/js/Components/Home/Leaderboard.vue?vue&type=template&id=2b64b5f8&":
+/*!*************************************************************************************!*\
+  !*** ./resources/js/Components/Home/Leaderboard.vue?vue&type=template&id=2b64b5f8& ***!
+  \*************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_template_id_2b64b5f8___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./Leaderboard.vue?vue&type=template&id=2b64b5f8& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/Components/Home/Leaderboard.vue?vue&type=template&id=2b64b5f8&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_template_id_2b64b5f8___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Leaderboard_vue_vue_type_template_id_2b64b5f8___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/Components/Login/Login.vue":
 /*!*************************************************!*\
   !*** ./resources/js/Components/Login/Login.vue ***!
@@ -62020,6 +62365,8 @@ var actions = {
     })["catch"](function (e) {
       if (e.response.data.error === 'Unauthorized') {
         commit('setRegisterMessage', 'Wrong email or password, please try again');
+      } else if (e.response.data.email && e.response.data.email.length) {
+        commit('setRegisterMessage', e.response.data.email[0]);
       } else {
         commit('setRegisterMessage', 'Something went wrong, we are working on it');
       }

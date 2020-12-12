@@ -78,6 +78,8 @@ const actions = {
       .catch(e => {
         if(e.response.data.error === 'Unauthorized') {
           commit('setRegisterMessage', 'Wrong email or password, please try again');
+        } else if(e.response.data.email && e.response.data.email.length) {
+          commit('setRegisterMessage', e.response.data.email[0]);
         } else {
           commit('setRegisterMessage', 'Something went wrong, we are working on it');
         }

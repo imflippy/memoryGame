@@ -26,15 +26,22 @@
           </div>
         </div>
       </section>
+      <section class="leaderboard-home">
+        <leaderboard></leaderboard>
+      </section>
     </div>
 </template>
 
 <script>
     import axios from 'axios';
     import {mapGetters} from "vuex";
+    import Leaderboard from "./Leaderboard";
 
   export default {
     name: "Home",
+    components: {
+      Leaderboard
+    },
     data() {
       return {
         ringsData: [

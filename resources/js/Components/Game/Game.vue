@@ -25,16 +25,18 @@
       </div>
       <div class="game-body">
         <div class="all-cards" v-if="getOpponentData !== undefined">
+        <div class="card-rows" v-for="(singleRow, index) in chunkCards">
           <game-card
-            v-for="(card, cId) in allCards"
+            v-for="(card, cId) in singleRow"
             :key="cId"
             :card="card"
-            :positionId="cId"
-            :is-opened="currentRoundCardsKeys.includes(cId)"
+            :positionId="card.position"
+            :is-opened="currentRoundCardsKeys.includes(card.position)"
             :is-my-card="myCards.includes(card.id)"
             :is-oppoent-card="opponentCards.includes(card.id)"
             @openCard="openCard"
-            ></game-card>
+          ></game-card>
+        </div>
         </div>
         <div v-else class="game-loader">
           <loader size="lobby" :globalLoader="true"></loader>
@@ -99,6 +101,18 @@
         },
         getOpponentData() {
           return this.gameUsers.filter(u => u.id !== this.user.user.id)[0];
+        },
+        chunkCards() {
+          let chunkSize = 4;
+          let p = 0;
+          this.allCards.forEach((c) => {
+            c.position = p;
+            p++
+          })
+          let groups = this.allCards.map((e, i) => {
+            return i % chunkSize === 0 ? this.allCards.slice(i, i + chunkSize) : null;
+          }).filter(e => { return e; });
+          return groups;
         }
       },
       methods: {

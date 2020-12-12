@@ -5,7 +5,10 @@
   justify-content: center;
   background-size: cover;
   position: relative;
-  &::after {
+  @media only screen and (max-width: 600px) {
+    height: 150px;
+  }
+    &::after {
     content: '';
     position: absolute;
     left: 0;
@@ -20,6 +23,8 @@
     font-weight: 700;
     color: $textColor;
     z-index: 1;
-
+    @media only screen and (max-width: 600px) {
+      font-size: 30px;
+    }
   }
 }

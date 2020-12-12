@@ -2,7 +2,7 @@
     <div>
         <page-info title="Login"></page-info>
         <div class="login-form">
-          <form>
+          <form @keyup.enter="loginUser">
             <form-title title="Login and Play!"></form-title>
             <input-text v-model.trim="$v.email.$model" placeholder="Email" :msg="emailError" @update="delayTouch($v.email)"></input-text>
             <input-text v-model.trim="$v.password.$model" type="password" placeholder="Password" :msg="passwordError" @update="delayTouch($v.password)"></input-text>

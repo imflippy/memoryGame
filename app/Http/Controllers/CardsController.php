@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 class CardsController extends Controller
 {
     public function getCards(Request $request) {
-//      $cards = Cards::all();
-      $cards = Cards::find([1, 2]);
+      $cards = Cards::all();
+//      $cards = Cards::find([1, 2]);
       $newCards = [];
 
       foreach ($cards as $c) {

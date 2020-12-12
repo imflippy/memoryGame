@@ -16,6 +16,9 @@
     font-size: $fontSizeBigger;
     transition: .3s;
     border-radius: 16px;
+    @media only screen and (max-width: 600px) {
+      font-size: 13px;
+    }
     &:focus {
       border: 2px solid $borderActive;
     }

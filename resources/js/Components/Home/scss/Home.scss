@@ -4,7 +4,10 @@
     height: 50vh;
     background-size: cover;
     position: relative;
-    &::after {
+    @media only screen and (max-width: 600px) {
+      height: 30vh;
+    }
+      &::after {
       content: '';
       position: absolute;
       left: 0;
@@ -24,16 +27,26 @@
       position: relative;
       z-index: 1;
       .title {
-        h1 {
+        @media only screen and (max-width: 1200px) {
+          margin: 0 auto;
+          text-align: center;
+        }
+          h1 {
           font-size: 60px;
           color: $textColor;
           text-transform: uppercase;
+            @media only screen and (max-width: 900px) {
+             font-size: 30px;
+            }
         }
       }
 
       .phone {
         height: 100%;
-        img {
+        @media only screen and (max-width: 900px) {
+          display: none;
+        }
+          img {
           height: 100%;
         }
       }
@@ -44,24 +57,38 @@
     height: 100%;
     max-width: 1200px;
     margin: 40px auto;
-    .title {
+    @media only screen and (max-width: 1200px) {
+      max-width: 800px;
+    }
+      .title {
       text-align: center;
       margin-bottom: 40px;
       h3 {
         font-size: 34px;
         color: $textColor;
+        @media only screen and (max-width: 650px) {
+          font-size: 20px;
+        }
       }
     }
     .rings {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      .ring-wrapper {
+      margin: 0 20px;
+      @media only screen and (max-width: 1200px) {
+        margin: 0 10px;
+      }
+        .ring-wrapper {
         height: 300px;
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;
-        .ring {
+        @media only screen and (max-width: 1200px) {
+          height: 150px;
+          width: 72px;
+        }
+          .ring {
           width: 180px;
           height: 180px;
           border-radius: 50%;
@@ -73,6 +100,12 @@
           align-items: center;
           font-size: 44px;
           color: rgba($textColor, .4);
+          margin: 0 auto;
+          @media only screen and (max-width: 1200px) {
+            width: 70px;
+            height: 70px;
+            font-size: 22px;
+          }
           .step {
             width: 50px;
             height: 50px;
@@ -87,6 +120,14 @@
             border-radius: 50%;
             font-size: 14px;
             font-weight: 600;
+            margin: 0 auto;
+            @media only screen and (max-width: 1200px) {
+              width: 25px;
+              height: 25px;
+              top: -6px;
+              right: -6px;
+              font-size: 11px;
+            }
           }
 
           &:hover {
@@ -101,6 +142,13 @@
             height: 30px;
             top: 50%;
             right: -108px;
+            @media only screen and (max-width: 1200px) {
+              width: 52px;
+              height: 18px;
+            }
+            @media only screen and (max-width: 650px) {
+              content: unset;
+            }
           }
           &.trophy {
             &::after {
@@ -112,6 +160,9 @@
           font-size: 30px;
           color: $textColor;
           text-align: center;
+          @media only screen and (max-width: 1200px) {
+            font-size: 16px;
+          }
         }
       }
     }
