@@ -7,6 +7,15 @@
   flex-direction: column;
   border-radius: 10px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+  @media only screen and (max-width: 1200px) {
+    padding: 0 16px;
+  }
+  @media only screen and (max-width: 800px) {
+    padding: 0 14px;
+  }
+  @media only screen and (max-width: 600px) {
+    padding: 0 10px;
+  }
   .us-top {
     display: flex;
     justify-content: space-between;
@@ -24,11 +33,29 @@
         p {
           color: $textColor;
           font-size: 18px;
+          @media only screen and (max-width: 1200px) {
+            font-size: 16px;
+          }
+          @media only screen and (max-width: 800px) {
+            font-size: 12px;
+          }
+          @media only screen and (max-width: 600px) {
+            font-size: 10px;
+          }
         }
         span {
           padding: 0 8px;
           color: $textColorActive;
           font-size: 20px;
+          @media only screen and (max-width: 1200px) {
+            font-size: 17px;
+          }
+          @media only screen and (max-width: 800px) {
+            font-size: 13px;
+          }
+          @media only screen and (max-width: 600px) {
+            font-size: 11px;
+          }
         }
       }
     }
@@ -36,6 +63,15 @@
     .waiting {
       font-size: 22px;
       color: $textColor;
+      @media only screen and (max-width: 1200px) {
+        font-size: 18px;
+      }
+      @media only screen and (max-width: 800px) {
+        font-size: 14px;
+      }
+      @media only screen and (max-width: 600px) {
+        font-size: 12px;
+      }
     }
 
     .is-player-turn {
@@ -48,6 +84,15 @@
         img {
           width:auto;
           height: 70%;
+          @media only screen and (max-width: 1200px) {
+            height: 60%;
+          }
+          @media only screen and (max-width: 800px) {
+            height: 55%;
+          }
+          @media only screen and (max-width: 600px) {
+            height: 50%;
+          }
         }
       }
     }

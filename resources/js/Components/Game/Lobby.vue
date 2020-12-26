@@ -22,7 +22,7 @@
   Pusher.logToConsole = true;
 
   import Loader from "../Helpers/Loader";
-  import {mapGetters} from "vuex";
+  import { mapGetters } from "vuex";
 
   export default {
     name: "Lobby",
