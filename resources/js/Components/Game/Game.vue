@@ -105,24 +105,28 @@
         chunkCards() {
           let chunkSize = 4;
           let p = 0;
-          this.allCards.forEach((c) => {
-            c.position = p;
-            p++
-          })
-          let groups = this.allCards.map((e, i) => {
-            return i % chunkSize === 0 ? this.allCards.slice(i, i + chunkSize) : null;
-          }).filter(e => { return e; });
-          return groups;
+          if(this.allCards.length) {
+            this.allCards.forEach((c) => {
+              c.position = p;
+              p++
+            })
+            let groups = this.allCards.map((e, i) => {
+              return i % chunkSize === 0 ? this.allCards.slice(i, i + chunkSize) : null;
+            }).filter(e => { return e; });
+            return groups;
+          }
         }
       },
       methods: {
         getCards() {
           let params = {
-            gameId: this.getGameId
+            gameId: Number(this.getGameId)
           }
+          // console.log("Call Cards!", typeof(params.gameId), params.gameId)
           axios.get('/get-cards', {params: params})
             .then((res) => {
-              this.allCards = res.data;
+              // this.allCards = res.data; // ovo je potrebno izmeniti, neka sve ide preko soketa
+              // console.log("Response from api call", res);
             })
             .catch((err) => {
               // console.log('ERROR WITH CAREDS', err)
@@ -136,13 +140,14 @@
                 // console.log("NIJE TVOJ MEC")
                 this.$router.push('/lobby');
               } else {
-                this.getCards(); //dohvatam inicijalno sve karte
+                // this.getCards(); //dohvatam inicijalno sve karte
                 this.gameUsers = users;
               }
             })
             .joining((user) => {
               if(this.gameUsers.length === 1) {
                 this.gameUsers.push(user);
+                this.getCards();
                 this.playerTurn = true;
               }
             })
@@ -200,7 +205,7 @@
             let startedGameTimestamp = parseInt(this.startedGameTimestamp / 1000);
 
             let req = {
-              gameId: this.getGameId,
+              gameId: Number(this.getGameId),
               currentGame: currentGame,
               cardDetails: cardDetails,
               startedGameTimestamp: startedGameTimestamp

@@ -28,23 +28,23 @@ Route::group([
   Route::get('ping-user', 'AuthController@pingUser');
   Route::get('/online', 'AuthController@list');
 
- Route::post('generate-game', 'GameController@generateGame');
- Route::post('win-game', 'GameController@winGame');
+ Route::post('generate-game', 'GameController@generateGame'); //validated
+ Route::post('win-game', 'GameController@winGame'); //validated
 });
 
 
 Route::group([
   'middleware' => 'api',
 ], function ($router) {
-  Route::get('get-cards', "CardsController@getCards");
-  Route::post('open-card', "CardsController@openCard");
+  Route::get('get-cards', "CardsController@getCards"); //validated
+  Route::post('open-card', "CardsController@openCard"); //validated
 
-  Route::get('lb-data', "GameController@leaderboard");
+  Route::get('lb-data', "GameController@leaderboard"); //nothing to validate
 
 });
 
 
-Route::post('push', 'SinglePageController@push');
+//Route::post('push', 'SinglePageController@push');
 
 //Route::post('online', 'UserController@online');
 

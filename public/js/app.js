@@ -12384,90 +12384,92 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       var chunkSize = 4;
       var p = 0;
-      this.allCards.forEach(function (c) {
-        c.position = p;
-        p++;
-      });
-      var groups = this.allCards.map(function (e, i) {
-        return i % chunkSize === 0 ? _this2.allCards.slice(i, i + chunkSize) : null;
-      }).filter(function (e) {
-        return e;
-      });
-      return groups;
+
+      if (this.allCards.length) {
+        this.allCards.forEach(function (c) {
+          c.position = p;
+          p++;
+        });
+        var groups = this.allCards.map(function (e, i) {
+          return i % chunkSize === 0 ? _this2.allCards.slice(i, i + chunkSize) : null;
+        }).filter(function (e) {
+          return e;
+        });
+        return groups;
+      }
     }
   }),
   methods: {
     getCards: function getCards() {
-      var _this3 = this;
-
       var params = {
-        gameId: this.getGameId
-      };
+        gameId: Number(this.getGameId)
+      }; // console.log("Call Cards!", typeof(params.gameId), params.gameId)
+
       axios.get('/get-cards', {
         params: params
-      }).then(function (res) {
-        _this3.allCards = res.data;
+      }).then(function (res) {// this.allCards = res.data; // ovo je potrebno izmeniti, neka sve ide preko soketa
+        // console.log("Response from api call", res);
       })["catch"](function (err) {// console.log('ERROR WITH CAREDS', err)
       });
     },
     listenToUsersActivity: function listenToUsersActivity() {
-      var _this4 = this;
+      var _this3 = this;
 
       Echo.join('game-info-users.' + this.getGameId).here(function (users) {
         // console.log("HEREHEREHEREHEREHEREGAME", users);
         if (users.length > 2) {
           // console.log("NIJE TVOJ MEC")
-          _this4.$router.push('/lobby');
+          _this3.$router.push('/lobby');
         } else {
-          _this4.getCards(); //dohvatam inicijalno sve karte
-
-
-          _this4.gameUsers = users;
+          // this.getCards(); //dohvatam inicijalno sve karte
+          _this3.gameUsers = users;
         }
       }).joining(function (user) {
-        if (_this4.gameUsers.length === 1) {
-          _this4.gameUsers.push(user);
+        if (_this3.gameUsers.length === 1) {
+          _this3.gameUsers.push(user);
 
-          _this4.playerTurn = true;
+          _this3.getCards();
+
+          _this3.playerTurn = true;
         }
       }).leaving(function (user) {
-        if (_this4.gameUsers.length === 2 && _this4.calculateRemainingPairs !== 0 && user.id === _this4.getOpponentData.id) {
+        if (_this3.gameUsers.length === 2 && _this3.calculateRemainingPairs !== 0 && user.id === _this3.getOpponentData.id) {
           // console.log("POBEDIK JE " + this.user.user.name);
-          var idUser = _this4.user.user.id;
+          var idUser = _this3.user.user.id;
 
-          _this4.postGameStatus(idUser);
+          _this3.postGameStatus(idUser);
 
-          _this4.$store.dispatch('setGameStatus', 'opponent-left');
+          _this3.$store.dispatch('setGameStatus', 'opponent-left');
 
-          _this4.$router.push('/');
+          _this3.$router.push('/');
         }
       }).listen('.GenerateCards', function (res) {
         // console.log("LISTEN", res);
-        _this4.allCards = res.cards;
+        _this3.allCards = res.cards;
       }).listen('GameEvent', function (res) {
         var newCurrRoundCardKeys = res.data.currentRoundCardsKeys;
         var newCurrRoundCard = res.data.currentRoundCards;
         var sameCardId = res.data.sameCardId;
         var stopwatchTime = res.data.stopwatchTime;
-        _this4.currentRoundCardsKeys = newCurrRoundCardKeys;
-        _this4.currentRoundCards = newCurrRoundCard;
-        _this4.stopwatchTime = stopwatchTime;
+        _this3.currentRoundCardsKeys = newCurrRoundCardKeys;
+        _this3.currentRoundCards = newCurrRoundCard;
+        _this3.stopwatchTime = stopwatchTime;
 
         if (newCurrRoundCardKeys.length === 2) {
           setTimeout(function () {
             if (sameCardId !== 0) {
-              _this4.playerTurn ? _this4.myCards.push(sameCardId) : _this4.opponentCards.push(sameCardId); //mozda i tu da reset timer - razmisli o biznis planu xd
+              _this3.playerTurn ? _this3.myCards.push(sameCardId) : _this3.opponentCards.push(sameCardId); //mozda i tu da reset timer - razmisli o biznis planu xd
 
-              _this4.timer = 0;
+              _this3.timer = 0;
             }
           }, 500);
           setTimeout(function () {
-            _this4.currentRoundCardsKeys = [];
-            _this4.currentRoundCards = [];
+            _this3.currentRoundCardsKeys = [];
+            _this3.currentRoundCards = [];
 
             if (res.data.changeUser) {
-              _this4.playerTurn = !_this4.playerTurn;
-              _this4.timer = 0;
+              _this3.playerTurn = !_this3.playerTurn;
+              _this3.timer = 0;
             }
           }, 2000);
         }
@@ -12481,7 +12483,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
         var startedGameTimestamp = parseInt(this.startedGameTimestamp / 1000);
         var req = {
-          gameId: this.getGameId,
+          gameId: Number(this.getGameId),
           currentGame: currentGame,
           cardDetails: cardDetails,
           startedGameTimestamp: startedGameTimestamp
@@ -12492,12 +12494,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     },
     callOpenCard: function callOpenCard(paylaod) {
-      var _this5 = this;
+      var _this4 = this;
 
       axios.post('/open-card', paylaod).then(function (res) {
-        _this5.isCardAvailable = true; // console.log("POST", res.data);
+        _this4.isCardAvailable = true; // console.log("POST", res.data);
       })["catch"](function (err) {
-        _this5.isCardAvailable = true; // console.log('ERROR CARd playYYY', err)
+        _this4.isCardAvailable = true; // console.log('ERROR CARd playYYY', err)
       });
     },
     postGameStatus: function postGameStatus(idUser) {
@@ -12518,41 +12520,41 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   watch: {
     gameUsers: function gameUsers(newVal) {
-      var _this6 = this;
+      var _this5 = this;
 
       if (newVal.length === 2) {
         this.startedGameTimestamp = Date.now();
         setInterval(function () {
-          _this6.stopwatchTime = _this6.stopwatchTime + 1;
-          _this6.timer = _this6.timer + 1;
+          _this5.stopwatchTime = _this5.stopwatchTime + 1;
+          _this5.timer = _this5.timer + 1;
         }, 1000);
       } //Ako korisnik ceka 5 sekundi, a protivnik nije usao u mec, vraca se u lobby
 
 
       setTimeout(function () {
         if (newVal.length === 1) {
-          _this6.$router.push('/lobby');
+          _this5.$router.push('/lobby');
         }
       }, 5000);
     },
     calculateRemainingPairs: function calculateRemainingPairs(newVal) {
-      var _this7 = this;
+      var _this6 = this;
 
       if (newVal === 0) {
         setTimeout(function () {
-          if (_this7.myCards.length < _this7.opponentCards.length) {
-            _this7.$store.dispatch('setGameStatus', 'lose');
-          } else if (_this7.myCards.length > _this7.opponentCards.length) {
-            var idUser = _this7.user.user.id;
+          if (_this6.myCards.length < _this6.opponentCards.length) {
+            _this6.$store.dispatch('setGameStatus', 'lose');
+          } else if (_this6.myCards.length > _this6.opponentCards.length) {
+            var idUser = _this6.user.user.id;
 
-            _this7.postGameStatus(idUser);
+            _this6.postGameStatus(idUser);
 
-            _this7.$store.dispatch('setGameStatus', 'win');
+            _this6.$store.dispatch('setGameStatus', 'win');
           } else {
-            _this7.$store.dispatch('setGameStatus', 'draw');
+            _this6.$store.dispatch('setGameStatus', 'draw');
           }
 
-          _this7.$router.push('/');
+          _this6.$router.push('/');
         }, 2000);
       }
     },
@@ -13918,7 +13920,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: 100vh;\n  margin: 0 auto;\n}\n.game-wrapper .game-header {\n  height: 90px;\n  display: flex;\n  justify-content: space-between;\n  padding: 10px 0;\n}\n.game-wrapper .game-header .game-stats {\n  min-width: 160px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  flex-direction: column;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-header .game-stats {\n    min-width: 140px;\n    justify-content: unset;\n}\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper .game-header .game-stats {\n    min-width: 120px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-wrapper .game-header .game-stats {\n    min-width: 80px;\n}\n}\n.game-wrapper .game-header .game-stats .remaining {\n  width: 100%;\n  color: #fff;\n  text-transform: uppercase;\n  font-size: 20px;\n  display: flex;\n  justify-content: space-evenly;\n  align-items: center;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-header .game-stats .remaining {\n    font-size: 17px;\n}\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper .game-header .game-stats .remaining {\n    font-size: 13px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-wrapper .game-header .game-stats .remaining {\n    font-size: 11px;\n}\n}\n.game-wrapper .game-header .game-stats .remaining .number {\n  color: #fddb3a;\n  font-size: 26px;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-header .game-stats .remaining .number {\n    font-size: 22px;\n}\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper .game-header .game-stats .remaining .number {\n    font-size: 18px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-wrapper .game-header .game-stats .remaining .number {\n    font-size: 14px;\n}\n}\n.game-wrapper .game-header .game-stats .stopwatch {\n  width: 100%;\n  color: #fddb3a;\n  font-size: 26px;\n  text-align: center;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-header .game-stats .stopwatch {\n    font-size: 22px;\n}\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper .game-header .game-stats .stopwatch {\n    font-size: 18px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-wrapper .game-header .game-stats .stopwatch {\n    font-size: 14px;\n}\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: calc(100% - 110px);\n  margin: 0 auto;\n}\n.game-wrapper .game-body .all-cards {\n  display: flex;\n  justify-content: space-between;\n  flex-direction: column;\n  height: 100%;\n  padding: 0 10px;\n}\n.game-wrapper .game-body .all-cards .card-rows {\n  display: flex;\n  justify-content: space-between;\n}\n.game-wrapper .game-body .game-loader {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}", ""]);
+exports.push([module.i, ".game-wrapper {\n  max-width: 1200px;\n  height: 100vh;\n  margin: 0 auto;\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper {\n    overflow: hidden;\n}\n}\n.game-wrapper .game-header {\n  height: 90px;\n  display: flex;\n  justify-content: space-between;\n  padding: 10px 0;\n}\n.game-wrapper .game-header .game-stats {\n  min-width: 160px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  flex-direction: column;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-header .game-stats {\n    min-width: 140px;\n    justify-content: unset;\n}\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper .game-header .game-stats {\n    min-width: 120px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-wrapper .game-header .game-stats {\n    min-width: 80px;\n}\n}\n.game-wrapper .game-header .game-stats .remaining {\n  width: 100%;\n  color: #fff;\n  text-transform: uppercase;\n  font-size: 20px;\n  display: flex;\n  justify-content: space-evenly;\n  align-items: center;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-header .game-stats .remaining {\n    font-size: 17px;\n}\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper .game-header .game-stats .remaining {\n    font-size: 13px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-wrapper .game-header .game-stats .remaining {\n    font-size: 11px;\n}\n}\n.game-wrapper .game-header .game-stats .remaining .number {\n  color: #fddb3a;\n  font-size: 26px;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-header .game-stats .remaining .number {\n    font-size: 22px;\n}\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper .game-header .game-stats .remaining .number {\n    font-size: 18px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-wrapper .game-header .game-stats .remaining .number {\n    font-size: 14px;\n}\n}\n.game-wrapper .game-header .game-stats .stopwatch {\n  width: 100%;\n  color: #fddb3a;\n  font-size: 26px;\n  text-align: center;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-header .game-stats .stopwatch {\n    font-size: 22px;\n}\n}\n@media only screen and (max-width: 800px) {\n.game-wrapper .game-header .game-stats .stopwatch {\n    font-size: 18px;\n}\n}\n@media only screen and (max-width: 600px) {\n.game-wrapper .game-header .game-stats .stopwatch {\n    font-size: 14px;\n}\n}\n.game-wrapper .game-body {\n  width: 100%;\n  height: calc(100% - 110px);\n  margin: 0 auto;\n}\n@media only screen and (max-width: 1200px) {\n.game-wrapper .game-body {\n    height: calc(100% - 250px);\n}\n}\n.game-wrapper .game-body .all-cards {\n  display: flex;\n  justify-content: space-between;\n  flex-direction: column;\n  height: 100%;\n  padding: 0 10px;\n}\n.game-wrapper .game-body .all-cards .card-rows {\n  display: flex;\n  justify-content: space-between;\n}\n.game-wrapper .game-body .game-loader {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}", ""]);
 
 // exports
 

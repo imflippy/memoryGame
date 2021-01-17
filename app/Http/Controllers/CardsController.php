@@ -6,10 +6,17 @@ use App\Cards;
 use App\Events\GameEvent;
 use App\Events\GenerateCards;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CardsController extends Controller
 {
     public function getCards(Request $request) {
+      $validator = Validator::make($request->all(), [
+        'gameId' => 'required|integer'
+      ]);
+      if($validator->fails()){
+        return response()->json($validator->errors(), 400);
+      }
       $cards = Cards::all();
 //      $cards = Cards::find([1, 2]);
       $newCards = [];
@@ -21,13 +28,22 @@ class CardsController extends Controller
       shuffle($newCards);
 
       $gameId = (int) $request->query('gameId');
-      broadcast(new GenerateCards($gameId, $newCards))->toOthers();
+      broadcast(new GenerateCards($gameId, $newCards));
 
-      return response()->json($newCards, 200);
+//      return response()->json($newCards, 200);
+      return response()->json("APi Respnse getCards", 200);
 
     }
 
   public function openCard(Request $request) {
+    $validator = Validator::make($request->all(), [
+      'gameId' => 'required|integer',
+      'startedGameTimestamp' => 'required|integer',
+    ]);
+    if($validator->fails()){
+      return response()->json($validator->errors(), 400);
+    }
+
     $currentGame = $request->input('currentGame') ?? null;
     $cardDetails = $request->input('cardDetails') ?? null;
     $gameId = $request->input('gameId');

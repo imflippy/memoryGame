@@ -3,6 +3,9 @@
   //height: calc(100vh - 78px);
   height: 100vh;
   margin: 0 auto;
+  @media only screen and (max-width: 800px) {
+   overflow: hidden;
+  }
   .game-header {
     height: 90px;
     display: flex;
@@ -79,6 +82,9 @@
     width: 100%;
     height: calc(100% - 110px);
     margin: 0 auto;
+    @media only screen and (max-width: 1200px) {
+      height: calc(100% - 250px);
+    }
     .all-cards {
       display: flex;
       justify-content: space-between;
