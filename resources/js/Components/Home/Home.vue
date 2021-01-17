@@ -15,7 +15,7 @@
           <h3>How It Works</h3>
         </div>
         <div class="rings">
-          <div class="ring-wrapper" v-for="(r, index) in ringsData" :key="index">
+          <div class="ring-wrapper" v-for="(r, index) in ringsData" :key="index" @click="lobbyLink">
             <div class="ring" :class="r.icon">
               <span class="step">{{ index + 1 }}</span>
               <font-awesome-icon :icon="r.icon" />
@@ -65,10 +65,12 @@
       }
     },
     computed: {
-      ...mapGetters(['getGameStatus']),
+      ...mapGetters(['getGameStatus', 'user']),
     },
     methods: {
-
+      lobbyLink() {
+        if(this.user) return this.$router.push('/lobby')
+      }
     },
     mounted() {
       switch(this.getGameStatus) {

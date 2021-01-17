@@ -13036,8 +13036,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }]
     };
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])(['getGameStatus'])),
-  methods: {},
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"])(['getGameStatus', 'user'])),
+  methods: {
+    lobbyLink: function lobbyLink() {
+      if (this.user) return this.$router.push('/lobby');
+    }
+  },
   mounted: function mounted() {
     switch (this.getGameStatus) {
       case 'win':
@@ -40596,24 +40600,32 @@ var render = function() {
         "div",
         { staticClass: "rings" },
         _vm._l(_vm.ringsData, function(r, index) {
-          return _c("div", { key: index, staticClass: "ring-wrapper" }, [
-            _c(
-              "div",
-              { staticClass: "ring", class: r.icon },
-              [
-                _c("span", { staticClass: "step" }, [
-                  _vm._v(_vm._s(index + 1))
-                ]),
-                _vm._v(" "),
-                _c("font-awesome-icon", { attrs: { icon: r.icon } })
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c("div", { staticClass: "ring-title" }, [
-              _vm._v("\n            " + _vm._s(r.title) + "\n        ")
-            ])
-          ])
+          return _c(
+            "div",
+            {
+              key: index,
+              staticClass: "ring-wrapper",
+              on: { click: _vm.lobbyLink }
+            },
+            [
+              _c(
+                "div",
+                { staticClass: "ring", class: r.icon },
+                [
+                  _c("span", { staticClass: "step" }, [
+                    _vm._v(_vm._s(index + 1))
+                  ]),
+                  _vm._v(" "),
+                  _c("font-awesome-icon", { attrs: { icon: r.icon } })
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("div", { staticClass: "ring-title" }, [
+                _vm._v("\n            " + _vm._s(r.title) + "\n        ")
+              ])
+            ]
+          )
         }),
         0
       )
